@@ -1,0 +1,13 @@
+# Ignore log files
+application/logs/
+
+# Ignore system files
+*.log
+*.tmp
+
+# Ignore VS Code settings
+.vscode/
+
+# Ignore node_modules or vendor (if you're using Node.js or PHP frameworks)
+node_modules/
+vendor/

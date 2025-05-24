@@ -1,0 +1,102 @@
+|a:5:{s:10:"session_id";s:32:"b729aaa2b1de1c70765142d7a6179f36";s:13:"last_activity";i:1732653526;s:14:"requested_page";s:7:"/logout";s:13:"previous_page";s:13:"mainpage/main";s:11:"app_session";a:1:{s:9:"rslt_lang";s:2:"EN";}}ptj|s:17:"PEJABAT BENDAHARI";idle|s:8:"04:25:36";UID|s:12:"010203040506";STAFF|s:28:"NURUL ILHAM SHAMS BINTI AZMI";icno|s:12:"010203040506";gred|s:3:"N19";jab|N;kump_staf|N;USER_TYPE|s:1:"S";gaji_hakiki|N;kategori|s:14:"BUKAN AKADEMIK";stafgred|N;klasifikasi|N;todo|s:10210:"<div class="p-3 pe-0 d-flex align-items-center dropdown-item gap-3 border-bottom">
+							      <span class="flex-shrink-0 bg-primary-subtle rounded-circle round d-flex align-items-center justify-content-center fs-6 text-primary ">
+                      			 <iconify-icon icon="solar:user-hands-outline" class="aside-icon"></iconify-icon>
+                    			</span>
+							      <div class="w-75 d-inline-block v-middle">
+      							      <div class="d-flex align-items-center justify-content-between">
+									      <h6 class="mb-0 lh-base">e-Latihan</h6>
+								      </div> 
+						      <span class='fs-2 d-block text-truncate text-truncate'> Anda Belum Memenuhi tujuh hari latihan bagi tahun semasa. Bilangan hari latihan dicapai 0</span>
+											          </div>
+						    </div><div class="p-3 pe-0 d-flex align-items-center dropdown-item gap-3 border-bottom">
+							      <span class="flex-shrink-0 bg-warning-subtle rounded-circle round d-flex align-items-center justify-content-center fs-6 text-warning ">
+                      			 <iconify-icon icon="solar:square-academic-cap-2-outline" class="aside-icon"></iconify-icon>
+                    			</span>
+							      <div class="w-75 d-inline-block v-middle">
+      							      <div class="d-flex align-items-center justify-content-between">
+									      <h6 class="mb-0 lh-base">Pendaftaran Kursus</h6>
+								      </div> 
+						       <a href='http://localhost/mynemov3/mainpage/opensys_todo/1652?url=/gtonline/pensyarah/mentor'><span class='fs-2 d-block text-truncate text-truncate'> 1 Permohonan Tambah Kursus Dengan Pengesahan Mentor</span></a>
+											           <a href='http://localhost/mynemov3/mainpage/opensys_todo/2976?url=/gtonline/pensyarah/mentor'><span class='fs-2 d-block text-truncate text-truncate'> 2 Permohonan Tambah Kursus Dengan Pengesahan Pensyarah</span></a>
+											          </div>
+						    </div><div class="p-3 pe-0 d-flex align-items-center dropdown-item gap-3 border-bottom">
+							      <span class="flex-shrink-0 bg-secondary-subtle rounded-circle round d-flex align-items-center justify-content-center fs-6 text-secondary ">
+                      			 <iconify-icon icon="solar:shield-user-outline" class="aside-icon"></iconify-icon>
+                    			</span>
+							      <div class="w-75 d-inline-block v-middle">
+      							      <div class="d-flex align-items-center justify-content-between">
+									      <h6 class="mb-0 lh-base">CustCare PED</h6>
+								      </div> 
+						       <a href='http://localhost/mynemov3/mainpage/opensys_todo/1561?url=/index.php/?module=support&app=CCPTM&page=tab_sen_aduan'><span class='fs-2 d-block text-truncate text-truncate'> 10 Aduan Terkini.</span></a>
+											           <a href='http://localhost/mynemov3/mainpage/opensys_todo/1622?url=/?module=support=CCPTM&app=aduan&page=aduan_forward'><span class='fs-2 d-block text-truncate text-truncate'> 10 Aduan Yang Diforwardkan</span></a>
+											           <a href='http://localhost/mynemov3/mainpage/opensys_todo/1651?url=/?module=support=CCPTM&app=tab_sen_aduan_ab'><span class='fs-2 d-block text-truncate text-truncate'> 15 Aduan Terkini (Admin Biasa)</span></a>
+											           <a href='http://localhost/mynemov3/mainpage/opensys_todo/2854?url=/?module=support&app=CCPTM&page=aduan&subpage=aduan_forward'><span class='fs-2 d-block text-truncate text-truncate'> 10 Aduan Yang Direturnkan</span></a>
+											           <a href='http://localhost/mynemov3/mainpage/opensys_todo/2863?url=/?module=support&app=CCPTM&page=aduan&subpage=sen_pengesahan'><span class='fs-2 d-block text-truncate text-truncate'> 5 Aduan Siap Perlu Disahkan</span></a>
+											           <a href='http://localhost/mynemov3/mainpage/opensys_todo/2866?url=/?module=support&app=CCPTM&page=tab_sen_aduan_ab&s=dp'><span class='fs-2 d-block text-truncate text-truncate'> 5 Aduan Dalam Proses(Admin Biasa)</span></a>
+											          </div>
+						    </div><div class="p-3 pe-0 d-flex align-items-center dropdown-item gap-3 border-bottom">
+							      <span class="flex-shrink-0 bg-secondary-subtle rounded-circle round d-flex align-items-center justify-content-center fs-6 text-secondary ">
+                      			 <iconify-icon icon="solar:shield-user-outline" class="aside-icon"></iconify-icon>
+                    			</span>
+							      <div class="w-75 d-inline-block v-middle">
+      							      <div class="d-flex align-items-center justify-content-between">
+									      <h6 class="mb-0 lh-base">MyDiscovery</h6>
+								      </div> 
+						       <a href='http://localhost/mynemov3/mainpage/opensys_todo/2966?url=appumt/app_bot/permohonan'><span class='fs-2 d-block text-truncate text-truncate'> 1 Permohonan Tempahan Bot</span></a>
+											           <a href='http://localhost/mynemov3/mainpage/opensys_todo/2970?url=appumt/app_bot/ketua_bkb'><span class='fs-2 d-block text-truncate text-truncate'> 15 Permohonan Untuk Tindakan</span></a>
+											          </div>
+						    </div><div class="p-3 pe-0 d-flex align-items-center dropdown-item gap-3 border-bottom">
+							      <span class="flex-shrink-0 bg-secondary-subtle rounded-circle round d-flex align-items-center justify-content-center fs-6 text-secondary ">
+                      			 <iconify-icon icon="solar:shield-user-outline" class="aside-icon"></iconify-icon>
+                    			</span>
+							      <div class="w-75 d-inline-block v-middle">
+      							      <div class="d-flex align-items-center justify-content-between">
+									      <h6 class="mb-0 lh-base">e-Discovery</h6>
+								      </div> 
+						       <a href='http://localhost/mynemov3/mainpage/opensys_todo/2951?url=/cigen/kapal/permohonan'><span class='fs-2 d-block text-truncate text-truncate'> 1 permohonan tempahan bot untuk tindakan</span></a>
+											           <a href='http://localhost/mynemov3/mainpage/opensys_todo/2960?url=cigen/kapal/ketua_bkb'><span class='fs-2 d-block text-truncate text-truncate'> 15 permohonan tempahan bot untuk tindakan (Ketua Seksyen)</span></a>
+											           <a href='http://localhost/mynemov3/mainpage/opensys_todo/2983?url=/googoggoo'><span class='fs-2 d-block text-truncate text-truncate'> 2 Test addr op</span></a>
+											          </div>
+						    </div><div class="p-3 pe-0 d-flex align-items-center dropdown-item gap-3 border-bottom">
+							      <span class="flex-shrink-0 bg-secondary-subtle rounded-circle round d-flex align-items-center justify-content-center fs-6 text-secondary ">
+                      			 <iconify-icon icon="solar:shield-user-outline" class="aside-icon"></iconify-icon>
+                    			</span>
+							      <div class="w-75 d-inline-block v-middle">
+      							      <div class="d-flex align-items-center justify-content-between">
+									      <h6 class="mb-0 lh-base">e-Meeting</h6>
+								      </div> 
+						       <a href='http://localhost/mynemov3/mainpage/opensys_todo/1655?url=/spm/spmtind/spm_list_tind'><span class='fs-2 d-block text-truncate text-truncate'> 2 tindakan perlu dikemaskini</span></a>
+											          </div>
+						    </div><div class="p-3 pe-0 d-flex align-items-center dropdown-item gap-3 border-bottom">
+							      <span class="flex-shrink-0 bg-success-subtle rounded-circle round d-flex align-items-center justify-content-center fs-6 text-success ">
+                      			 <iconify-icon icon="solar:dollar-minimalistic-outline" class="aside-icon"></iconify-icon>
+                    			</span>
+							      <div class="w-75 d-inline-block v-middle">
+      							      <div class="d-flex align-items-center justify-content-between">
+									      <h6 class="mb-0 lh-base">MyPay</h6>
+								      </div> 
+						       <a href='http://localhost/mynemov3/mainpage/opensys_todo/2864?url=/eupah/index.php?page=lulus'><span class='fs-2 d-block text-truncate text-truncate'> 2 tuntutan perlu diluluskan</span></a>
+											          </div>
+						    </div><div class="p-3 pe-0 d-flex align-items-center dropdown-item gap-3 border-bottom">
+							      <span class="flex-shrink-0 bg-success-subtle rounded-circle round d-flex align-items-center justify-content-center fs-6 text-success ">
+                      			 <iconify-icon icon="solar:dollar-minimalistic-outline" class="aside-icon"></iconify-icon>
+                    			</span>
+							      <div class="w-75 d-inline-block v-middle">
+      							      <div class="d-flex align-items-center justify-content-between">
+									      <h6 class="mb-0 lh-base">e-Claim</h6>
+								      </div> 
+						       <a href='http://localhost/mynemov3/mainpage/opensys_todo/2965?url=?module=financial&app=CLA&page=feedback&subpage=list_fb'><span class='fs-2 d-block text-truncate text-truncate'> 1 Feedback baru</span></a>
+											           <a href='http://localhost/mynemov3/mainpage/opensys_todo/2984?url=?module=financial&app=CLA&page=travelm&subpage=sokong_keluar'><span class='fs-2 d-block text-truncate text-truncate'> 5 Sokongan Permohonan Keluar Pejabat</span></a>
+											          </div>
+						    </div><div class="p-3 pe-0 d-flex align-items-center dropdown-item gap-3 border-bottom">
+							      <span class="flex-shrink-0 bg-success-subtle rounded-circle round d-flex align-items-center justify-content-center fs-6 text-success ">
+                      			 <iconify-icon icon="solar:dollar-minimalistic-outline" class="aside-icon"></iconify-icon>
+                    			</span>
+							      <div class="w-75 d-inline-block v-middle">
+      							      <div class="d-flex align-items-center justify-content-between">
+									      <h6 class="mb-0 lh-base">e-Gigi</h6>
+								      </div> 
+						       <a href='http://localhost/mynemov3/mainpage/opensys_todo/2962?url=index.php?module=financial&app=EGIGI&page=gg_mohon_semak'><span class='fs-2 d-block text-truncate text-truncate'> 1 Tuntutan untuk semakan semula</span></a>
+											           <a href='http://localhost/mynemov3/mainpage/opensys_todo/2978?url=gggg'><span class='fs-2 d-block text-truncate text-truncate'> 15 egigi mu</span></a>
+											          </div>
+						    </div>";
