@@ -31,6 +31,30 @@ class Dashboard extends Admin_Controller {
 		session_start();
     }
 
+    public function system_start(){
+        
+        // Load the model that interacts with the database
+        $this->load->model('Ccc_model');  
+        $userrole = $this->Ccc_model->get_user_role(); 
+
+        $uid = $_SESSION["UID"];
+        $_SESSION["UID"] = strtoupper($uid); // Convert to uppercase        
+
+        $_SESSION['userrole'] = $userrole['T08_ROLE'];
+        echo $_SESSION['userrole'];
+        //open different view file based on user role
+        if ($userrole['T08_ROLE'] == '1') {
+            redirect('manage/admin/senaraiaduan');
+        } elseif ($userrole['T08_ROLE'] == '2') {
+            redirect('manage/admin/sa_senaraiaduan');
+        } elseif ($userrole['T08_ROLE'] == '3') {
+            redirect('manage/admin/ga_senaraiaduan');
+        } else {
+            show_error("Akses tidak dibenarkan", 403);
+        }
+
+    }
+
     
 	
 	function index()

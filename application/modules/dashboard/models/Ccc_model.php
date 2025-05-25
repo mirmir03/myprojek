@@ -72,4 +72,24 @@ class Ccc_model extends BF_Model
 				->find_all();
 return $data;				
 	}
+
+    public function get_user_role()
+{
+    // get SESSION UID from the session with uppercase
+    $uid = $_SESSION["UID"];
+    $uid = strtoupper($uid); // Convert to uppercase
+
+    $this->db->select('T08_ROLE');
+    $this->db->where('T08_ID_ADMIN', $uid);
+    $this->db->from('CC_T08_ADMIN');
+    $query = $this->db->get();
+
+    // Debug the returned recordset
+    // echo $this->db->last_query();
+    // print_r($query->result_array());
+    // exit(); // Stop execution to inspect
+
+    return $query->row_array();
+    
+}
 }
