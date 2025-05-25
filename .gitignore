@@ -1,13 +1,24 @@
-# Ignore log files
-application/logs/
+*/config/development
+/logs/log-.php
+!*/logs/index.html
+/cache/
+!system/cache/*
+!*/cache/index.html
+!*/cache/.htaccess
 
-# Ignore system files
-*.log
-*.tmp
+user_guide_src/build/*
+user_guide_src/cilexer/build/*
+user_guide_src/cilexer/dist/*
+user_guide_src/cilexer/pycilexer.egg-info/*
 
-# Ignore VS Code settings
-.vscode/
+#codeigniter 3
+application/logs/*
+application/config/database.php
+application/config/config.php
+!application/logs/index.html
+!application/logs/.htaccess
+/vendor/
 
-# Ignore node_modules or vendor (if you're using Node.js or PHP frameworks)
-node_modules/
-vendor/
+uploads/*
+upload/*
+user_guide/*
