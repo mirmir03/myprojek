@@ -84,6 +84,32 @@ $tns =  "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = db-or
 $db['default'] = array(
 	'dsn'	=> '',
 	'hostname' => $tns,
+	'username' => 'fyp',
+	'password' => 'mypassword',
+	'dbdriver' => 'oci8',
+	'dbprefix' => '',
+	'pconnect' => FALSE,
+	'db_debug' => (ENVIRONMENT !== 'production'),
+	'cache_on' => FALSE,
+	'cachedir' => '',
+	'char_set' => 'utf8',
+	'dbcollat' => 'utf8_general_ci',
+	'swap_pre' => '',
+	'autoinit' => TRUE,
+	'encrypt' => FALSE,
+	'compress' => FALSE,
+	'stricton' => FALSE,
+	'failover' => array(),
+	'save_queries' => TRUE
+);
+
+$tns =  "(DESCRIPTION = (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.20.207)(PORT = 49161)))".
+   	    "(CONNECT_DATA = (SID = xe)))";
+		
+
+$db['default'] = array(
+	'dsn'	=> '',
+	'hostname' => $tns,
 	'username' => 'pita212',
 	'password' => 'pita212',
 	'dbdriver' => 'oci8',
