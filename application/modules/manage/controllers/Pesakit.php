@@ -10,6 +10,14 @@ class Pesakit extends Admin_Controller
 
     public function listpesakit()
     {
+        // $_SESSION['UID'];
+        // $uid = $_SESSION['UID'];
+
+        // $q = $this->db->select("T02_JAWATAN_STAF")
+        // ->where("T02_ID_STAF", $uid)
+        // ->get("EV_T02_STAF_XRAY")
+        // ->row();
+
         $data = $this->pesakit_model->get_all_pesakit();
 
         $this->template->title("Senarai pesakit");
@@ -203,104 +211,105 @@ public function save($id_pesakit)
     redirect(module_url("pesakit/listpesakit"));
 }
 
-    public function graphs() 
+   // FIXED GRAPH METHODS
+    public function patient_graph()
     {
-        if ($this->input->get('fetch_data') === 'true') {
-            try {
-                $startDate = $this->input->get('startDate');
-                $endDate = $this->input->get('endDate');
-                $kategori = $this->input->get('kategori');
-
-                $data = $this->pesakit_model->getChartData($startDate, $endDate, $kategori);
-
-                if ($data->num_rows() === 0) {
-                    $this->output
-                        ->set_content_type('application/json')
-                        ->set_output(json_encode(['status' => 'empty']))
-                        ->_display();
-                    exit;
-                }
-
-                $this->output
-                    ->set_content_type('application/json')
-                    ->set_output(json_encode($data->result_array()))
-                    ->_display();
-                exit;
-            } catch (Exception $e) {
-                log_message('error', 'Chart data error: ' . $e->getMessage());
-                $this->output
-                    ->set_status_header(500)
-                    ->set_content_type('application/json')
-                    ->set_output(json_encode(['status' => 'error', 'message' => $e->getMessage()]))
-                    ->_display();
-                exit;
-            }
-        }
-
-        $this->template->title("Laporan Grafik Pesakit");
+        $this->template->title("Patient Statistics Graph");
         $this->template->render();
     }
 
-    public function get_filtered_data() {
-        $bulan = $this->input->post('bulan');
+    public function get_graph_data()
+    {
+        // Set proper headers for JSON response
+        header('Content-Type: application/json');
+        
+        // Get POST data
+        $bahagian_utama = $this->input->post('bahagian_utama');
         $kategori = $this->input->post('kategori');
-        $bhg_utama = $this->input->post('bhg_utama');
-        
-        $this->db->select("T01_JANTINA, T01_SUB_BAHAGIAN, COUNT(*) as count");
-        $this->db->from("EV_T01_PESAKIT");
-        
-        if ($bulan) {
-            $this->db->where("TO_CHAR(TO_DATE(T01_TARIKH, 'DD-MON-YYYY'), 'MM')", $bulan);
-        }
-        if ($kategori) {
-            $this->db->where("T01_KATEGORI", $kategori);
-        }
-        if ($bhg_utama) {
-            $this->db->where("T01_BAHAGIAN_UTAMA", $bhg_utama);
-        }
-        
-        $this->db->group_by("T01_JANTINA, T01_SUB_BAHAGIAN");
-        $query = $this->db->get();
-        
-        echo json_encode($query->result());
-    }
-
-    public function grafik() {
-        
-        
-        // OR if using a template library
-        $this->template->render('pesakit/grafik_pesakit');
-    }
-
-    public function get_patient_stats() {
         $month = $this->input->post('month');
-        $category = $this->input->post('category');
-        $diagnosis_area = $this->input->post('diagnosis_area');
+        $year = $this->input->post('year');
+
+        // Validate required fields
+        if (empty($bahagian_utama) || empty($kategori)) {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Bahagian Utama and Kategori are required'
+            ]);
+            exit;
+        }
+
+        try {
+            // Get data from model
+            $data = $this->pesakit_model->get_graph_data($bahagian_utama, $kategori, $month, $year);
+            
+            // Return success response
+            echo json_encode([
+                'status' => 'success', 
+                'data' => $data
+            ]);
+            
+        } catch (Exception $e) {
+            // Log error
+            log_message('error', 'Graph data error: ' . $e->getMessage());
+            
+            // Return error response
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Database error occurred: ' . $e->getMessage()
+            ]);
+        }
         
-        // Gender count data
-        $this->db->select("T01_JANTINA as gender, COUNT(*) as count");
-        $this->db->from("EV_T01_PESAKIT");
+        // Important: Exit to prevent any additional output
+        exit;
+    }
+    
+    // Debug method to test data retrieval
+    public function debug_graph_data()
+    {
+        // Set proper headers for JSON response
+        header('Content-Type: application/json');
         
-        if ($month) $this->db->where("TO_CHAR(TO_DATE(T01_TARIKH, 'DD-MON-YYYY'), 'MM')", $month);
-        if ($category) $this->db->where("T01_KATEGORI", $category);
-        if ($diagnosis_area) $this->db->where("T01_BAHAGIAN_UTAMA", $diagnosis_area);
+        $bahagian_utama = $this->input->post('bahagian_utama') ?: $this->input->get('bahagian_utama');
+        $kategori = $this->input->post('kategori') ?: $this->input->get('kategori');
         
-        $gender_data = $this->db->group_by("T01_JANTINA")->get()->result();
+        if (empty($bahagian_utama) || empty($kategori)) {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Bahagian Utama and Kategori parameters are required'
+            ]);
+            exit;
+        }
         
-        // Diagnosis by gender data
-        $this->db->select("T01_JANTINA as gender, T01_SUB_BAHAGIAN as sub_part, COUNT(*) as count");
-        $this->db->from("EV_T01_PESAKIT");
+        try {
+            $debug_data = $this->pesakit_model->debug_graph_data($bahagian_utama, $kategori);
+            
+            echo json_encode([
+                'status' => 'success', 
+                'data' => $debug_data, 
+                'query' => $this->db->last_query(),
+                'parameters' => [
+                    'bahagian_utama' => $bahagian_utama,
+                    'kategori' => $kategori
+                ]
+            ]);
+            
+        } catch (Exception $e) {
+            echo json_encode([
+                'status' => 'error', 
+                'message' => 'Debug error: ' . $e->getMessage()
+            ]);
+        }
         
-        if ($month) $this->db->where("TO_CHAR(TO_DATE(T01_TARIKH, 'DD-MON-YYYY'), 'MM')", $month);
-        if ($category) $this->db->where("T01_KATEGORI", $category);
-        if ($diagnosis_area) $this->db->where("T01_BAHAGIAN_UTAMA", $diagnosis_area);
-        
-        $diagnosis_data = $this->db->group_by("T01_JANTINA, T01_SUB_BAHAGIAN")->get()->result();
-        
-        echo json_encode([
-            'gender' => $gender_data,
-            'diagnosis' => $diagnosis_data
-        ]);
+        // Important: Exit to prevent any additional output
+        exit;
+    }
+
+    public function check_dates() 
+    {
+        header('Content-Type: application/json');
+        $dates = $this->pesakit_model->get_sample_dates(10);
+        echo json_encode(['dates' => $dates]);
+        exit;
     }
 }
 ?>

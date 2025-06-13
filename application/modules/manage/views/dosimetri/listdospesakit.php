@@ -15,11 +15,11 @@ $ENABLE_DELETE = true;
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Senarai Dosimetri Pesakit</h5>
             <div>
-                <a href="<?= module_url('pesakit/listpesakit') ?>" class="btn btn-sm btn-outline-secondary">
+                <a href="<?= module_url('manage/pesakit/listpesakit') ?>" class="btn btn-sm btn-outline-secondary">
                     <i class="ti ti-arrow-left"></i> Kembali ke Senarai Pesakit
                 </a>
                 <?php if ($ENABLE_ADD): ?>
-                <a href="<?= module_url('dosimetri/form_add_pesakit') ?>" class="btn btn-sm btn-primary ms-2">
+                <a href="<?= module_url('dosimetriPesakit/form_add_pesakit') ?>" class="btn btn-sm btn-primary ms-2">
                     <i class="ti ti-plus"></i> Tambah Rekod
                 </a>
                 <?php endif; ?>
@@ -99,7 +99,7 @@ $(document).ready(function() {
         const name = $(this).data('name');
         
         if(confirm(`Padam rekod dosimetri untuk ${name}?`)) {
-            window.location = '<?= module_url("dosimetri/delete/") ?>' + id;
+            window.location = '<?= module_url("dosimetriPesakit/delete/") ?>' + id;
         }
     });
 });

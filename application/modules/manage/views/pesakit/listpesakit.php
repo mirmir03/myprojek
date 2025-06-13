@@ -51,6 +51,10 @@ echo "Bilangan Data " . $data->num_rows();
         <?php if ($ENABLE_ADD): ?>
             <a class="btn btn-primary float-end" href="<?php echo module_url("pesakit/form_add") ?>">Tambah Pesakit Baru</a>  
         <?php endif; ?>
+                        <!-- Graph Button -->
+<a class="btn btn-success me-2" href="<?php echo module_url("pesakit/patient_graph"); ?>">
+    <i class="ti ti-chart-bar"></i> Jana Graf
+</a>
     </div>
    
     <div class="card-body">
@@ -113,14 +117,7 @@ echo "Bilangan Data " . $data->num_rows();
                 <?php } ?>
             </tbody>
         </table>
-   <!-- Generate Report Button -->
-   <div class="row mt-4">
-            <div class="col-12">
-                <a href="<?php echo base_url('manage/pesakit/graphs'); ?>" class="btn btn-success report-btn">
-                    <i class="ti ti-file-report me-1"></i> Jana Graph
-                </a>
-            </div>
-        </div>
+   
     </div>
 </div>
 

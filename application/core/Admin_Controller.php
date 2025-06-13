@@ -13,7 +13,9 @@ class Admin_Controller extends Base_Controller
      */
     public function __construct()
     { 
-		$_SESSION["icno"] = "820519115343";
+		// $_SESSION["icno"] = "820519115343";
+
+     
        
         $this->autoload['helpers'][]   = 'form';
         $this->autoload['libraries'][] = 'Template';
@@ -34,6 +36,11 @@ class Admin_Controller extends Base_Controller
 			$link = $http.'://'.$domain.'/mynemov3.1/login';
 			redirect($link);
 		}
+
+        // print_r($_SESSION);
+        // exit;
+
+        // $_SESSION['UID'];
 		
 		/*if (!$this->auth->is_login())  //mcmaa tutup
         {  

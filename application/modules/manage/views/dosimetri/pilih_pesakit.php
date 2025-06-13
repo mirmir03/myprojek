@@ -3,7 +3,7 @@
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Pilih Pesakit</h5>
             <div>
-                <a href="<?= module_url('dosimetri/listdospesakit') ?>" class="btn btn-sm btn-outline-secondary">
+                <a href="<?= module_url('dosimetriPesakit/listdospesakit') ?>" class="btn btn-sm btn-outline-secondary">
                     <i class="ti ti-arrow-left"></i> Kembali ke Senarai Dosimetri
                 </a>
             </div>
@@ -36,7 +36,7 @@
                         <td><?= htmlspecialchars($row->T01_NAMA_PESAKIT) ?></td>
                         <td><?= htmlspecialchars($row->T01_NO_IC ?? 'N/A') ?></td>
                         <td>
-                            <a href="<?= module_url('dosimetri/form_add/' . $row->T01_ID_PESAKIT) ?>" class="btn btn-sm btn-primary">
+                            <a href="<?= module_url('dosimetriPesakit/form_add/' . $row->T01_ID_PESAKIT) ?>" class="btn btn-sm btn-primary">
                                 <i class="ti ti-plus"></i> Tambah Rekod Dosimetri
                             </a>
                         </td>

@@ -60,6 +60,7 @@ $route['default_controller'] = 'manage/pesakit/listpesakit';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = false;
 
+
 $route['qr1/(:any)'] = 'pelajar/admin/index/$1';
 $route['qr/(:any)'] = 'qr/utama';
 $route['qr_kelas/(:any)'] = 'qr_kelas/utama';

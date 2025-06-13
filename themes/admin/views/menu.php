@@ -1,5 +1,36 @@
 <?php 
 //$role = isset($_SESSION["iac"]) ? $role = $_SESSION["iac"]["level"] : NULL ;
+$uid =  $_SESSION['UID'];
+
+
+// echo $uid;
+
+$q = $this->db->select("T02_JAWATAN_STAF")
+        ->where("T02_ID_STAF", $uid)
+        ->get("EV_T02_STAF_XRAY")
+        ->row();
+
+
+		/*
+result : admin 
+
+if($q == 'admin' || fewf){
+
+menu 1 
+menu 2
+
+
+}
+
+else if ($q == 'ASBC'){
+menu 3 
+menu 4
+}
+*/
+
+
+
+
 ?>
 <ul id="sidebarnav">
     <!--<li class="header">MAIN NAVIGATION</li> -->
@@ -41,13 +72,13 @@
 		  </a>
 		</li>
 		<li class="sidebar-item">
-		  <a class="sidebar-link" href="<?=base_url()?>manage/licensing/listlicense" aria-expanded="false">
+		  <a class="sidebar-link" href="<?=base_url()?>manage/Reject/listreject" aria-expanded="false">
 			<iconify-icon icon="solar:document-linear" class="aside-icon"></iconify-icon>
 			<span class="hide-menu">Quality Assurance</span>
 		  </a>
 		</li>
 		<li class="sidebar-item">
-		  <a class="sidebar-link" href="<?=base_url()?>manage/licensing/listlicense" aria-expanded="false">
+		  <a class="sidebar-link" href="<?=base_url()?>manage/Reminder/listreminders" aria-expanded="false">
 			<iconify-icon icon="solar:document-linear" class="aside-icon"></iconify-icon>
 			<span class="hide-menu">Pesanan Order</span>
 		  </a>
@@ -59,15 +90,15 @@
 		  </a>
 		  <ul aria-expanded="false" class="collapse first-level">
 			<li class="sidebar-item">
-			  <a href="<?= base_url()?>pelajar/ccc/listmohon" class="sidebar-link">
+			  <a href="<?= base_url()?>manage/dosimetriPesakit/listdospesakit" class="sidebar-link">
 				<iconify-icon icon="solar:stop-circle-line-duotone" class="sidebar-icon"></iconify-icon>
-				<span class="hide-menu">Staff</span>
+				<span class="hide-menu">Pesakit</span>
 			  </a>
 			</li>
 			<li class="sidebar-item">
 			  <a href="<?= base_url()?>admin/ccc/mohon" class="sidebar-link">
 				<iconify-icon icon="solar:stop-circle-line-duotone" class="sidebar-icon"></iconify-icon>
-				<span class="hide-menu">Pelajar</span>
+				<span class="hide-menu">Staff</span>
 			  </a>
 			</li>			
 		  </ul>

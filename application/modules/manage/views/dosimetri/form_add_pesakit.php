@@ -1,4 +1,3 @@
-<form method="POST" action="<?php echo module_url('dosimetri/add'); ?>" enctype="multipart/form-data">
     <div class="col-lg-12">
     <div class="card">
         <div class="px-4 py-3 border-bottom">
@@ -11,7 +10,7 @@
         </div>
         <?php endif; ?>
         
-        <form method="POST" action="<?php echo module_url('dosimetri/add/' . $pesakit->T01_ID_PESAKIT); ?>">
+        <form method="POST" action="<?= module_url('dosimetriPesakit/add/' . $pesakit->T01_ID_PESAKIT) ?>" enctype="multipart/form-data">
             <!-- Patient Info (Readonly) -->
             <div class="mb-4 row align-items-center mt-3">
                 <label class="form-label fw-semibold col-sm-3 col-form-label text-end">No Rujukan</label>
@@ -95,13 +94,16 @@
                 </div>
             </div>
 
+            <!-- ADD THE HIDDEN FIELD HERE -->
+            <input type="hidden" name="T01_ID_PESAKIT" value="<?= $pesakit->T01_ID_PESAKIT ?>">
+
             <!-- Buttons -->
             <div class="row mb-4">
                 <div class="col-sm-3"></div>
                 <div class="col-sm-9">
                     <div class="d-flex align-items-center gap-3">
                         <button type="submit" class="btn btn-primary">Simpan Rekod</button>
-                        <a href="<?= module_url('dosimetri/form_add_pesakit') ?>" class="btn bg-danger-subtle text-danger">Batal</a>
+                        <a href="<?= module_url('dosimetriPesakit/form_add_pesakit') ?>" class="btn bg-danger-subtle text-danger">Batal</a>
                     </div>
                 </div>
             </div>

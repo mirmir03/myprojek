@@ -15,7 +15,7 @@
             <div class="mb-4 row align-items-center mt-3">
                 <label for="tarikh" class="form-label fw-semibold col-sm-3 col-form-label text-end">Tarikh</label>
                 <div class="col-sm-9">
-                    <input type="date" class="form-control" id="tarikh" name="tarikh" required readonly>
+                    <input type="date" class="form-control" id="tarikh" name="tarikh" required>
                 </div>
             </div>
 
@@ -24,7 +24,7 @@
                 <label for="kategori" class="form-label fw-semibold col-sm-3 col-form-label text-end">Kategori</label>
                 <div class="col-sm-9">
                     <select class="form-select" id="kategori" name="kategori" required>
-                        <option value="" selected>Sila Pilih</option>
+                        <option value="">Sila Pilih</option>
                         <option value="pelajar">Pelajar</option>
                         <option value="staf">Staf UMT</option>
                         <option value="pesara">Pesara</option>
@@ -56,7 +56,7 @@
                 <label for="jantina" class="form-label fw-semibold col-sm-3 col-form-label text-end">Jantina</label>
                 <div class="col-sm-9">
                     <select class="form-select" id="jantina" name="jantina" required>
-                        <option value="" selected>Sila Pilih</option>
+                        <option value="">Sila Pilih</option>
                         <option value="Lelaki">Lelaki</option>
                         <option value="Perempuan">Perempuan</option>
                     </select>
@@ -83,7 +83,7 @@
             <div class="mb-4 row align-items-center">
                 <label for="sub_bhg" class="form-label fw-semibold col-sm-3 col-form-label text-end">Pilihan Sub</label>
                 <div class="col-sm-9">
-                    <select class="form-select" id="sub_bhg" name="sub_bhg" required disabled>
+                    <select class="form-select" id="sub_bhg" name="sub_bhg" disabled required>
                         <option value="" selected disabled>Pilih Pilihan Utama Dulu</option>
                     </select>
                 </div>
@@ -115,6 +115,9 @@ document.addEventListener("DOMContentLoaded", function() {
    
     // Set the initial value to today
     dateInput.value = todayStr;
+   
+    // Make the field readonly to prevent changes
+    dateInput.setAttribute("readonly", "readonly");
 
     const subOptions = {
         "Skull and Head": ["Skull (AP/PA and lateral views)", "Sinuses (paranasal sinuses)", "Facial Bones", "Mandible (jaw)", "Temporomandibular Joint (TMJ)"],
@@ -354,6 +357,3 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 </script>
-
-
-
