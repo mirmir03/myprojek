@@ -29,7 +29,7 @@
 
       <!-- No Rujukan -->
       <div class="mb-4 row align-items-center">
-        <label for="no_rujukan" class="form-label fw-semibold col-sm-3 col-form-label text-end">No Rujukan</label>
+        <label for="no_rujukan" class="form-label fw-semibold col-sm-3 col-form-label text-end">No Pengenalan</label>
         <div class="col-sm-9">
           <input type="text" class="form-control" id="no_rujukan" name="no_rujukan" value="<?php echo $pesakit->T01_NO_RUJUKAN?>" required>
           <small id="rujukan_format" class="form-text text-muted"></small>

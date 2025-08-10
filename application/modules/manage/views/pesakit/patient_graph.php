@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Patient Statistics Graph</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -110,6 +113,14 @@
             <p>View patient distribution by gender across different sub-departments</p>
         </div>
 
+        <div class="mb-4">
+    <button class="btn btn-success" onclick="goBack()">
+        <i class="bi bi-arrow-left"></i> Kembali
+    </button>
+</div>
+
+
+
         <div class="filters">
             <div class="filter-group">
                 <label for="bahagian_utama">Bahagian Utama *</label>
@@ -169,8 +180,9 @@
             </div>
 
             <div class="filter-group">
-                <button class="btn" onclick="generateGraph()">Generate Graph</button>
-                <button class="btn debug" onclick="debugData()">Debug Data</button>
+                <button class="btn" onclick="generateGraph()">Jana Graph</button>
+               <!-- <button class="btn debug" onclick="debugData()">Debug Data</button> -->
+
             </div>
         </div>
 
@@ -391,6 +403,41 @@
             });
         }
 
+         function generatePDF() {
+        const bahagianUtama = document.getElementById('bahagian_utama').value;
+        const kategori = document.getElementById('kategori').value;
+        const month = document.getElementById('month').value;
+        const year = document.getElementById('year').value;
+
+        if (!bahagianUtama || !kategori) {
+            showError('Please select both Bahagian Utama and Kategori');
+            return;
+        }
+
+        // Create form dynamically
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '<?= site_url("manage/PdfController/generate_patient_graph_pdf") ?>';
+        
+        // Add fields
+        const addField = (name, value) => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = name;
+            input.value = value;
+            form.appendChild(input);
+        };
+        
+        addField('bahagian_utama', bahagianUtama);
+        addField('kategori', kategori);
+        if (month) addField('month', month);
+        if (year) addField('year', year);
+
+        // Submit form
+        document.body.appendChild(form);
+        form.submit();
+    }
+
         // Initialize with current year
         document.addEventListener('DOMContentLoaded', function() {
             const currentYear = new Date().getFullYear();
@@ -402,7 +449,12 @@
                 const option = new Option(currentYear, currentYear);
                 yearSelect.insertBefore(option, yearSelect.options[1]);
             }
+            
         });
+        function goBack() {
+    window.history.back(); // or use window.location.href = 'your_target_url';
+}
+
     </script>
 </body>
 </html>

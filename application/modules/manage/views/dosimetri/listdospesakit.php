@@ -3,6 +3,14 @@ $ENABLE_ADD = true;
 $ENABLE_DELETE = true;
 ?>
 
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+
 <style>
     .dose-high { background-color: #ffcccc; }
     .dose-medium { background-color: #fff3cd; }
@@ -15,9 +23,6 @@ $ENABLE_DELETE = true;
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Senarai Dosimetri Pesakit</h5>
             <div>
-                <a href="<?= module_url('manage/pesakit/listpesakit') ?>" class="btn btn-sm btn-outline-secondary">
-                    <i class="ti ti-arrow-left"></i> Kembali ke Senarai Pesakit
-                </a>
                 <?php if ($ENABLE_ADD): ?>
                 <a href="<?= module_url('dosimetriPesakit/form_add_pesakit') ?>" class="btn btn-sm btn-primary ms-2">
                     <i class="ti ti-plus"></i> Tambah Rekod
@@ -33,7 +38,7 @@ $ENABLE_DELETE = true;
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
-                        <th>No Xray</th>
+                        <th>No Pengenalan</th>
                         <th>Nama Pesakit</th>
                         <th>Voltan Tiub (kV)</th>
                         <th>Arus-Masa (mAs)</th>
@@ -75,18 +80,34 @@ $ENABLE_DELETE = true;
                         <td><?= htmlspecialchars($row->T03_DOSE_AREA_PRODUCT) ?></td>
                         <td><?= htmlspecialchars($row->T03_EXPOSURE_INDEX) ?></td>
                         <td>
-                            <?php if ($ENABLE_DELETE): ?>
-                            <button class="btn btn-sm btn-danger delete-btn" 
-                                    data-id="<?= $row->T03_ID_DOS_PESAKIT ?>"
-                                    data-name="<?= htmlspecialchars($patient->T01_NAMA_PESAKIT ?? 'N/A') ?>">
-                                <i class="ti ti-trash"></i> Padam
-                            </button>
-                            <?php endif; ?>
-                        </td>
+    <div class="d-flex flex-column align-items-start">
+        <?php if ($ENABLE_ADD): ?>
+        <a href="<?= module_url('dosimetriPesakit/form_edit_pesakit/' . $row->T03_ID_DOS_PESAKIT) ?>" 
+           class="btn btn-sm btn-warning mb-1" title="Kemaskini">
+            <i class="ti ti-edit"></i>
+        </a>
+        <?php endif; ?>
+
+        <?php if ($ENABLE_DELETE): ?>
+        <button class="btn btn-sm btn-danger delete-btn" 
+                data-id="<?= $row->T03_ID_DOS_PESAKIT ?>"
+                data-name="<?= htmlspecialchars($patient->T01_NAMA_PESAKIT ?? 'N/A') ?>"
+                title="Padam">
+            <i class="ti ti-trash"></i>
+        </button>
+        <?php endif; ?>
+    </div>
+</td>
+
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            <div class="mt-3">
+    <a href="<?= module_url('dosimetriPesakit/export_dosimetri_excel') ?>" class="btn btn-success">
+        <i class="ti ti-download"></i> Export ke Excel (CSV)
+    </a>
+</div>
         </div>
     </div>
 </div>
@@ -103,4 +124,43 @@ $(document).ready(function() {
         }
     });
 });
+
+$(document).ready(function() {
+
+    // 1. Initialize DataTable
+    var table = $('#dosimetri-table').DataTable({
+        "pageLength": 10,
+        "ordering": false,
+        "language": {
+            "search": "Cari:",
+            "lengthMenu": "Papar _MENU_ rekod",
+            "info": "Paparan _START_ hingga _END_ daripada _TOTAL_ rekod",
+            "infoEmpty": "Tiada rekod",
+            "infoFiltered": "(ditapis daripada _MAX_ jumlah rekod)",
+            "zeroRecords": "Tiada padanan ditemui",
+            "paginate": {
+                "first": "Pertama",
+                "last": "Terakhir",
+                "next": "Seterusnya",
+                "previous": "Sebelumnya"
+            }
+        }
+    });
+
+    // 2. Optional: connect external search input
+    $('#search-dosimetri').on('keyup', function () {
+        table.search(this.value).draw();
+    });
+
+    // 3. Delete confirmation logic
+    $('.delete-btn').click(function() {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
+        
+        if(confirm(`Padam rekod dosimetri untuk ${name}?`)) {
+            window.location = '<?= module_url("dosimetriPesakit/delete/") ?>' + id;
+        }
+    });
+});
+
 </script>

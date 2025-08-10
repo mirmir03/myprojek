@@ -1,8 +1,28 @@
+<div class="breadcrumb">
+    <span class="breadcrumb-text">
+        <a href="<?= base_url('sip/pelajar/carian') ?>" class="text-muted text-decoration-none">Utama</a>
+    </span>
+    <span class="separator"> > </span>
+    <span class="breadcrumb-text">
+        <a href="<?= base_url('manage/pesakit/listpesakit') ?>" class="text-muted text-decoration-none">Senarai Pesakit</a>
+    </span>
+    <span class="separator"> > </span>
+    <span class="breadcrumb-text active">Tambah Pesakit</span>
+</div>
+<form method="POST" action="<?php echo module_url('pesakit/add'); ?>" enctype="multipart/form-data">
+    <!-- Rest of your form remains exactly the same -->
+    <div class="col-lg-12">
+        <div class="card">
+
+
 <form method="POST" action="<?php echo module_url('pesakit/add'); ?>" enctype="multipart/form-data">
     <div class="col-lg-12">
         <div class="card">
             <div class="px-4 py-3 border-bottom">
-                <h5 class="card-title fw-semibold mb-0">DAFTAR PESAKIT BAHARU</h5>
+                <h5 class="card-title fw-semibold mb-0">
+    <?= isset($page_title) ? $page_title : 'DAFTAR PESAKIT BAHARU'; ?>
+</h5>
+
             </div>
             
             <?php if ($this->session->flashdata('error')): ?>
@@ -15,7 +35,7 @@
             <div class="mb-4 row align-items-center mt-3">
                 <label for="tarikh" class="form-label fw-semibold col-sm-3 col-form-label text-end">Tarikh</label>
                 <div class="col-sm-9">
-                    <input type="date" class="form-control" id="tarikh" name="tarikh" required>
+                    <input type="date" class="form-control" id="tarikh" name="tarikh" required readonly>
                 </div>
             </div>
 
@@ -36,7 +56,7 @@
 
             <!-- No Rujukan -->
             <div class="mb-4 row align-items-center">
-                <label for="no_rujukan" class="form-label fw-semibold col-sm-3 col-form-label text-end">No Rujukan</label>
+                <label for="no_rujukan" class="form-label fw-semibold col-sm-3 col-form-label text-end">No Pengenalan</label>
                 <div class="col-sm-9">
                     <input type="text" class="form-control" id="no_rujukan" name="no_rujukan" required>
                     <small id="rujukan_format" class="form-text text-muted"></small>
@@ -101,259 +121,293 @@
             </div>
         </div>
     </div>
+
+<!-- Custom Popout Modal -->
+<div class="modal fade" id="rujukanModal" tabindex="-1" aria-labelledby="rujukanModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title" id="rujukanModalLabel">Format Tidak Sah</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <div class="modal-body" id="rujukanModalMessage">
+        <!-- Message will be inserted here dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 </form>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     const dateInput = document.getElementById("tarikh");
     const today = new Date();
-   
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const dd = String(today.getDate()).padStart(2, "0");
-    const todayStr = `${yyyy}-${mm}-${dd}`;
-   
-    // Set the initial value to today
-    dateInput.value = todayStr;
-   
-    // Make the field readonly to prevent changes
-    dateInput.setAttribute("readonly", "readonly");
+    dateInput.value = today.toISOString().split('T')[0];
 
     const subOptions = {
         "Skull and Head": ["Skull (AP/PA and lateral views)", "Sinuses (paranasal sinuses)", "Facial Bones", "Mandible (jaw)", "Temporomandibular Joint (TMJ)"],
-        "Spine": ["Cervical Spine (neck)", "Thoracic Spine (mid-back)", "Lumbar Spine (lower back)", "Sacrum and Coccyx", "Full Spine (scoliosis studies)"],
-        "Chest": ["Lungs", "Heart", "Ribs", "Sternum", "Clavicle (collarbone)", "Diaphragm"],
-        "Abdomen": ["Kidneys, Ureters, and Bladder (KUB)", "Gas patterns (for bowel obstruction or perforation)", "Foreign Body Localization"],
-        "Upper Extremities": ["Shoulder", "Humerus (upper arm)", "Elbow", "Forearm (radius and ulna)", "Wrist", "Hand", "Fingers"],
-        "Lower Extremities": ["Pelvis", "Hip", "Femur (thigh bone)", "Knee", "Tibia and Fibula (lower leg)", "Ankle", "Foot", "Toes"]
+        "Spine": ["Cervical Spine", "Thoracic Spine", "Lumbar Spine", "Sacrum and Coccyx", "Full Spine"],
+        "Chest": ["Lungs", "Heart", "Ribs", "Sternum", "Clavicle", "Diaphragm"],
+        "Abdomen": ["KUB", "Gas patterns", "Foreign Body Localization"],
+        "Upper Extremities": ["Shoulder", "Humerus", "Elbow", "Forearm", "Wrist", "Hand", "Fingers"],
+        "Lower Extremities": ["Pelvis", "Hip", "Femur", "Knee", "Tibia and Fibula", "Ankle", "Foot", "Toes"]
     };
 
-    document.getElementById('bhg_utama').addEventListener('change', function() {
-        const selectedOption = this.value;
-        const subOptionSelect = document.getElementById('sub_bhg');
-        subOptionSelect.innerHTML = ''; // Clear previous options
-        if (selectedOption) {
-            subOptionSelect.disabled = false;
-            subOptionSelect.innerHTML = '<option value="" selected disabled>Sila Pilih</option>';
-            subOptions[selectedOption].forEach(subOption => {
-                const option = document.createElement('option');
-                option.value = subOption;
-                option.textContent = subOption;
-                subOptionSelect.appendChild(option);
+    document.getElementById('bhg_utama').addEventListener('change', function () {
+        const subSelect = document.getElementById('sub_bhg');
+        subSelect.innerHTML = '<option value="" disabled selected>Sila Pilih</option>';
+        subSelect.disabled = !this.value;
+        if (subOptions[this.value]) {
+            subOptions[this.value].forEach(opt => {
+                const option = document.createElement("option");
+                option.value = opt;
+                option.textContent = opt;
+                subSelect.appendChild(option);
             });
-        } else {
-            subOptionSelect.disabled = true;
-            subOptionSelect.innerHTML = '<option value="" selected disabled>Pilih Pilihan Utama Dulu</option>';
         }
     });
 
-    // Category and reference number handling
     const kategoriSelect = document.getElementById("kategori");
     const noRujukanInput = document.getElementById("no_rujukan");
     const namaInput = document.getElementById("nama_pesakit");
     const jantinaSelect = document.getElementById("jantina");
     const formatHelp = document.getElementById("rujukan_format");
-    
-    // Track validation state to prevent loops
-    let isValidating = false;
-    
-    // Format patterns for validation
+
     const formatPatterns = {
-        "pelajar": /^s\d+$/i,
-        "staf": /^w\d+$/i,
-        "pesara": /^\d{6}[-]\d{2}[-]\d{4}$/,
-        "tanggungan": /^\d{6}[-]\d{2}[-]\d{4}$/,
-        "warga luar": /^\d{6}[-]\d{2}[-]\d{4}$/
+        pelajar: /^\d{6}-\d{2}-\d{4}$/,
+        staf: /^\d{6}-\d{2}-\d{4}$/,
+        pesara: /^\d{6}-\d{2}-\d{4}$/,
+        tanggungan: /^\d{6}-\d{2}-\d{4}$/,
+        "warga luar": /^\d{6}-\d{2}-\d{4}$/
     };
-    
-    // Format messages for user guidance
+
     const formatMessages = {
-        "pelajar": "Format Nom Matrik: s12345",
-        "staf": "Format Id Staff: w1234",
-        "pesara": "Format: 920906-03-0408 (Nombor kad pengenalan)",
-        "tanggungan": "Format: 920906-03-0408 (Nombor kad pengenalan)",
-        "warga luar": "Format: 920906-03-0408 (Nombor kad pengenalan)"
+        pelajar: "Format: 030408-03-0504 (IC Pelajar)",
+        staf: "Format: 030408-03-0504 (IC Staf)",
+        pesara: "Format: 030408-03-0504",
+        tanggungan: "Format: 030408-03-0504",
+        "warga luar": "Format: 030408-03-0504"
     };
-    
-    kategoriSelect.addEventListener("change", function() {
-        const selectedKategori = this.value;
-        
-        // Clear previous values
-        noRujukanInput.value = "";
+
+    kategoriSelect.addEventListener("change", () => {
+        const selected = kategoriSelect.value;
+        formatHelp.textContent = formatMessages[selected] || "";
+        namaInput.readOnly = selected === "pelajar" || selected === "staf";
         namaInput.value = "";
+        noRujukanInput.value = "";
         jantinaSelect.value = "";
-        
-        // Set format help text based on selected category
-        formatHelp.textContent = selectedKategori ? formatMessages[selectedKategori] : "";
-        
-        // If category is manual entry, enable the name field
-        if (selectedKategori === "pesara" || selectedKategori === "tanggungan" || selectedKategori === "warga luar") {
-            namaInput.readOnly = false;
-        } else {
-            namaInput.readOnly = true;
-        }
-        
-        // Reset validation state when category changes
-        isValidating = false;
-        
-        // Focus the rujukan field after category selection
-        setTimeout(() => {
-            noRujukanInput.focus();
-        }, 100);
     });
-    
-    // Function to validate no_rujukan format based on category
-    function validateRujukanFormat(kategori, rujukan) {
-        if (!kategori || !rujukan) return false;
-        
+
+    function validateFormat(kategori, value) {
         const pattern = formatPatterns[kategori];
-        return pattern ? pattern.test(rujukan) : false;
+        return pattern ? pattern.test(value) : false;
     }
-    
-    // Function to determine gender from IC number
-    function determineGenderFromIC(icNumber) {
-        if (!icNumber || icNumber.length < 12) return "";
-        
-        // Extract the last digit for gender determination
-        const lastDigit = parseInt(icNumber.charAt(icNumber.length - 1), 10);
-        
-        // Even number means female, odd means male
-        if (lastDigit % 2 === 0) {
-            return "Perempuan"; // Perempuan (Female) - Even numbers
-        } else {
-            return "Lelaki"; // Lelaki (Male) - Odd numbers
-        }
+
+    function getGenderFromIC(ic) {
+        const lastDigit = parseInt(ic.replace(/-/g, '').slice(-1));
+        return lastDigit % 2 === 0 ? "Perempuan" : "Lelaki";
     }
-    
-    // Add event listener for kategori focus to reset validation state
-    kategoriSelect.addEventListener("focus", function() {
-        isValidating = false;
-    });
-    
-    // Add event listener for no_rujukan focus to reset validation state
-    noRujukanInput.addEventListener("focus", function() {
-        isValidating = false;
-    });
-    
-    // Handle input changes to provide immediate feedback
-    noRujukanInput.addEventListener("input", function() {
-        // Reset validation state on new input
-        isValidating = false;
-    });
-    
-    // Auto-populate name field on no_rujukan change for students and staff
-    noRujukanInput.addEventListener("blur", function() {
-        // Prevent validation loop
-        if (isValidating) return;
-        
-        const selectedKategori = kategoriSelect.value;
+
+    function showPopoutMessage(message) {
+        document.getElementById('rujukanModalMessage').textContent = message;
+        var modal = new bootstrap.Modal(document.getElementById('rujukanModal'));
+        modal.show();
+    }
+
+    // ENHANCED: Main blur event listener for no_rujukan input
+    noRujukanInput.addEventListener("blur", function () {
+        const kategori = kategoriSelect.value;
         const rujukan = this.value.trim();
         
-        if (!rujukan || !selectedKategori) {
-            return;
-        }
+        console.log('Processing:', { kategori, rujukan });
         
-        // Set validating flag to prevent loops
-        isValidating = true;
+        // Skip if empty
+        if (!rujukan) return;
         
-        // Validate format based on category
-        if (!validateRujukanFormat(selectedKategori, rujukan)) {
-            // More specific error message based on potential wrong format detection
-            let errorMessage = `Format No Rujukan tidak sah untuk kategori ${selectedKategori}.`;
-            
-            // Check if user entered IC format for student/staff or vice versa
-            if ((selectedKategori === "pelajar" || selectedKategori === "staf") && 
-                /^\d{6}[-]\d{2}[-]\d{4}$/.test(rujukan)) {
-                errorMessage = `Anda memasukkan nombor kad pengenalan. Untuk kategori ${selectedKategori}, sila gunakan format ${formatMessages[selectedKategori]}.`;
-            } else if ((selectedKategori === "pesara" || selectedKategori === "tanggungan" || selectedKategori === "warga luar") &&
-                      (/^s\d+$/i.test(rujukan) || /^w\d+$/i.test(rujukan))) {
-                errorMessage = `Anda memasukkan format pelajar/staf. Untuk kategori ${selectedKategori}, sila gunakan format nombor kad pengenalan.`;
-            }
-            
-            // Show alert with specific message
-            alert(errorMessage);
-            
-            // Reset and focus the field
+        // Skip if kategori not selected
+        if (!kategori) {
+            showPopoutMessage('Sila pilih kategori terlebih dahulu.');
             this.value = "";
-            
-            // Reset validation state
-            isValidating = false;
-            
-            // Focus back on the input field after alert is closed
-            setTimeout(() => {
-                this.focus();
-            }, 100);
-            
             return;
         }
         
-        // For IC format (pesara, tanggungan, warga_luar), determine gender
-        if (selectedKategori === "pesara" || selectedKategori === "tanggungan" || selectedKategori === "warga luar") {
-            const gender = determineGenderFromIC(rujukan);
-            if (gender) {
-                jantinaSelect.value = gender;
-            }
-            
-            // Reset validation state after successful validation
-            isValidating = false;
-            
-            // Move focus to nama field
-            setTimeout(() => {
-                namaInput.focus();
-            }, 100);
-            
-            return; // No need to fetch from database for these categories
+        // Validate format
+        if (!validateFormat(kategori, rujukan)) {
+            showPopoutMessage(`Format No Rujukan tidak sah. Gunakan format: ${formatMessages[kategori]}`);
+            this.value = "";
+            this.focus();
+            return;
         }
+
+        // Handle staff/student categories - fetch both name AND gender from database
+        if (kategori === "pelajar" || kategori === "staf") {
+            console.log('Fetching staff/student data (name + gender)...');
+            
+            // Clear previous values
+            namaInput.value = "";
+            jantinaSelect.value = "";
+            
+            // Prepare form data
+            const formData = new FormData();
+            formData.append("no_rujukan", rujukan);
+            formData.append("kategori", kategori);
+
+            // Make AJAX request
+            fetch("<?php echo module_url('pesakit/get_patient_data'); ?>", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                return response.text(); // Get as text first
+            })
+            .then(text => {
+                console.log('Raw response:', text);
+                
+                // Try to parse JSON
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    throw new Error('Invalid JSON response: ' + text);
+                }
+                
+                console.log('Parsed data:', data);
+                
+                // Handle response
+                if (data.status === "success") {
+                    // Set both name and gender from database
+                    namaInput.value = data.data.nama || "";
+                    jantinaSelect.value = data.data.jantina
+    ? data.data.jantina.charAt(0).toUpperCase() + data.data.jantina.slice(1).toLowerCase()
+    : "";
+
+                    
+                    console.log('✓ Data loaded successfully:', {
+                        nama: data.data.nama,
+                        jantina: data.data.jantina
+                    });
+                    
+                    // Fallback: if no gender from DB, derive from IC
+                    if (!data.data.jantina) {
+                        jantinaSelect.value = getGenderFromIC(rujukan);
+                        console.log('→ Used IC-derived gender as fallback:', getGenderFromIC(rujukan));
+                    }
+                } else if (data.status === "not_found") {
+                    showPopoutMessage(data.message || "No rujukan tidak ditemui dalam sistem.");
+                    noRujukanInput.value = "";
+                    console.log('✗ Data not found');
+                } else {
+                    showPopoutMessage(data.message || "Ralat mencari data pesakit.");
+                    noRujukanInput.value = "";
+                    console.log('✗ Error response:', data);
+                }
+            })
+            .catch(error => {
+                console.error('AJAX Error:', error);
+                showPopoutMessage("Ralat sambungan ke server. Sila cuba lagi.");
+                noRujukanInput.value = "";
+            });
+        } else {
+            // For other categories (pesara, tanggungan, warga luar)
+            // Derive gender from IC number only
+            const derivedGender = getGenderFromIC(rujukan);
+            jantinaSelect.value = derivedGender;
+            console.log('✓ Set gender for other category:', derivedGender);
+        }
+    });
+
+    // Enhanced test function
+    window.testAjax = function() {
+        console.log('Testing AJAX connection...');
         
-        // Fetch patient data from the database for students and staff
         const formData = new FormData();
-        formData.append("no_rujukan", rujukan);
-        formData.append("kategori", selectedKategori);
+        formData.append("no_rujukan", "030425-04-0678");
+        formData.append("kategori", "pelajar");
+
+        fetch("<?php echo module_url('pesakit/test_ajax'); ?>", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('✓ AJAX Test Result:', data);
+        })
+        .catch(error => {
+            console.error('✗ AJAX Test Error:', error);
+        });
+    };
+
+    // Enhanced data fetch test
+    window.testDataFetch = function(testIC = "030425-04-0678", testKategori = "pelajar") {
+        console.log(`Testing data fetch for: ${testIC} (${testKategori})`);
         
+        const formData = new FormData();
+        formData.append("no_rujukan", testIC);
+        formData.append("kategori", testKategori);
+
+        fetch("<?php echo module_url('pesakit/get_patient_data'); ?>", {
+            method: "POST",
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.text())
+        .then(text => {
+            console.log('Raw response:', text);
+            try {
+                const data = JSON.parse(text);
+                console.log('✓ Parsed data:', data);
+                
+                if (data.status === 'success') {
+                    console.log('→ Name:', data.data.nama);
+                    console.log('→ Gender:', data.data.jantina);
+                }
+            } catch (e) {
+                console.error('✗ JSON parse error:', e);
+            }
+        })
+        .catch(error => {
+            console.error('✗ Fetch error:', error);
+        });
+    };
+
+    // Test function for non-staff categories
+    window.testOtherCategory = function() {
+        const testIC = "030425-04-0678";
+        const testKategori = "pesara";
+        
+        console.log(`Testing other category: ${testIC} (${testKategori})`);
+        
+        const formData = new FormData();
+        formData.append("no_rujukan", testIC);
+        formData.append("kategori", testKategori);
+
         fetch("<?php echo module_url('pesakit/get_patient_data'); ?>", {
             method: "POST",
             body: formData
         })
         .then(response => response.json())
         .then(data => {
-            if (data.status === "success") {
-                namaInput.value = data.data.nama;
-                // Set gender if available in the response
-                if (data.data.jantina) {
-                    jantinaSelect.value = data.data.jantina;
-                }
-                
-                // Move focus to next field
-                document.getElementById("bhg_utama").focus();
-            } else {
-                alert("No rujukan tidak ditemui dalam sistem. Sila semak semula.");
-                this.value = "";
-                this.focus();
-                namaInput.value = "";
-            }
-            
-            // Reset validation state after API response
-            isValidating = false;
+            console.log('✓ Other category result:', data);
         })
         .catch(error => {
-            console.error("Error fetching patient data:", error);
-            alert("Ralat semasa mencari maklumat pesakit. Sila cuba lagi.");
-            
-            // Reset validation state after error
-            isValidating = false;
+            console.error('✗ Other category error:', error);
         });
-    });
-    
-    // Add form submit handler to perform final validation
-    document.querySelector("form").addEventListener("submit", function(event) {
-        const selectedKategori = kategoriSelect.value;
-        const rujukan = noRujukanInput.value.trim();
-        
-        if (!validateRujukanFormat(selectedKategori, rujukan)) {
-            event.preventDefault();
-            alert(`Format No Rujukan tidak sah untuk kategori ${selectedKategori}. ${formatMessages[selectedKategori]}`);
-            noRujukanInput.focus();
-        }
-    });
+    };
 });
 </script>

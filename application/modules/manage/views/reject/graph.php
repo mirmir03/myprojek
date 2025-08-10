@@ -175,7 +175,9 @@
             </form>
         </div>
         
-        <!-- Chart Section -->
+        <div class="row">
+    <!-- Left side: Chart Section -->
+    <div class="col-md-8">
         <div class="chart-container">
             <div class="chart-title">
                 Graf Jumlah Reject Mengikut Jenis
@@ -185,7 +187,7 @@
                         $filter_text = [];
                         if (!empty($selected_month)) {
                             $months = ['', 'Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 
-                                     'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'];
+                                        'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'];
                             $filter_text[] = $months[$selected_month];
                         }
                         if (!empty($selected_year)) {
@@ -196,20 +198,20 @@
                     </small>
                 <?php endif; ?>
             </div>
-            
             <div id="chartContent">
                 <?php if (!empty($chart_labels) && json_decode($chart_labels)): ?>
                     <div class="stats-container">
                         <div class="stat-item">
-                            <div class="stat-value" id="totalRejects">0</div>
                             <div class="stat-label">Jumlah Reject</div>
+                            <div class="stat-value" id="totalRejects">0</div>
+                            
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value" id="totalTypes">0</div>
                             <div class="stat-label">Jenis Reject</div>
+                            <div class="stat-value" id="totalTypes">0</div>
+                            
                         </div>
                     </div>
-                    
                     <div class="canvas-container">
                         <canvas id="rejectChart"></canvas>
                     </div>
@@ -222,6 +224,13 @@
             </div>
         </div>
     </div>
+
+    <!-- Right side: Notes Section -->
+    <div class="col-md-4">
+        <?php $this->load->view('manage/reject/notes_management'); ?>
+    </div>
+</div>
+
 
     <script>
         // Chart data from PHP

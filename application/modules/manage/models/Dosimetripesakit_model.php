@@ -58,4 +58,54 @@ class Dosimetripesakit_model extends CI_Model
         
         return $result;
     }
+
+    public function get_by_id($id)
+{
+    return $this->db->where('T03_ID_DOS_PESAKIT', $id)->get('EV_T03_DOSIMETRI_PESAKIT')->row();
+}
+public function update($id_dosimetri)
+{
+    // Load model
+    $this->load->model('Dosimetripesakit_model');
+
+    // Validate form input
+    $tarikh = $this->input->post('tarikh');
+    $nilai_dos = $this->input->post('nilai_dos');
+    // Add more fields as needed
+
+    if (empty($tarikh) || empty($nilai_dos)) {
+        $this->session->set_flashdata('error', 'Required fields are missing.');
+        redirect(module_url("dosimetripesakit/form_edit/" . $id_dosimetri));
+        return;
+    }
+
+    // Prepare data
+    $data = [
+        'T03_TARIKH' => $tarikh,
+        'T03_NILAI_DOS' => $nilai_dos,
+        // Include other fields from your form
+    ];
+
+    // Update record
+    $result = $this->Dosimetripesakit_model->update($id_dosimetri, $data);
+
+    // Handle result
+    if ($result) {
+        $this->session->set_flashdata('success', 'Dosimetry record updated successfully.');
+    } else {
+        $this->session->set_flashdata('error', 'Failed to update dosimetry record.');
+    }
+
+    redirect(module_url("dosimetripesakit/list")); // adjust if your list function is named differently
+}
+
+public function check_existing_dosimetri($staff_name, $month, $year) {
+    $this->db->where('T04_NAMA_PENGGUNA', $staff_name);
+    $this->db->where("TO_CHAR(T04_TARIKH, 'MM') =", $month);
+    $this->db->where("TO_CHAR(T04_TARIKH, 'YYYY') =", $year);
+    $query = $this->db->get('EV_T04_DOSIMETRI_STAFF');
+    
+    return $query->num_rows() > 0;
+}
+
 }

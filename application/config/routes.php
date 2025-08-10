@@ -52,7 +52,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 */
 // $route['default_controller'] = 'reg/parents/create';
 // $route['default_controller'] = 'reg/sys/index';
-$route['default_controller'] = 'manage/pesakit/listpesakit';
+$route['default_controller'] = 'manage/Role/system_start';
 
 // Pesakit routes
 

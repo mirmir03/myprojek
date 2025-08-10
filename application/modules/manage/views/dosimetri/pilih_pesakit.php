@@ -22,9 +22,8 @@
                 <thead class="table-light">
                     <tr>
                         <th>No</th>
-                        <th>No Rujukan</th>
-                        <th>Nama Pesakit</th>
                         <th>No. Kad Pengenalan</th>
+                        <th>Nama Pesakit</th>
                         <th>Tindakan</th>
                     </tr>
                 </thead>
@@ -34,7 +33,6 @@
                         <td><?= ++$i ?></td>
                         <td><?= htmlspecialchars($row->T01_NO_RUJUKAN) ?></td>
                         <td><?= htmlspecialchars($row->T01_NAMA_PESAKIT) ?></td>
-                        <td><?= htmlspecialchars($row->T01_NO_IC ?? 'N/A') ?></td>
                         <td>
                             <a href="<?= module_url('dosimetriPesakit/form_add/' . $row->T01_ID_PESAKIT) ?>" class="btn btn-sm btn-primary">
                                 <i class="ti ti-plus"></i> Tambah Rekod Dosimetri
@@ -52,6 +50,7 @@
 $(document).ready(function() {
     $('#pesakit-table').DataTable({
         "pageLength": 10,
+        "ordering": false,
         "language": {
             "search": "Cari:",
             "lengthMenu": "Papar _MENU_ rekod",

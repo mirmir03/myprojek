@@ -47,12 +47,9 @@ class Reject_model extends CI_Model
             $where_conditions[] = "EXTRACT(YEAR FROM T06_TARIKH) = :year";
             $params[':year'] = $year;
         } elseif (!empty($month)) {
-            // Filter by month only (current year) - FIX: Bind the actual values
-            $current_year = date('Y');
+            // Filter by month only (across ALL years) - FIX: Remove year restriction
             $where_conditions[] = "EXTRACT(MONTH FROM T06_TARIKH) = :month";
-            $where_conditions[] = "EXTRACT(YEAR FROM T06_TARIKH) = :current_year";
             $params[':month'] = $month;
-            $params[':current_year'] = $current_year; // FIX: Use the variable, not the placeholder
         }
 
         // Build the complete SQL query

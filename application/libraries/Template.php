@@ -886,6 +886,17 @@ class Template
 
         return $template;
     }
+
+	/**
+ * Get breadcrumbs array
+ *
+ * @access	public
+ * @return	array
+ */
+public function get_breadcrumbs()
+{
+    return $this->_breadcrumbs;
+}
 }
 
 // END Template class

@@ -67,14 +67,14 @@ echo "Bilangan Data " . $data->num_rows();
             <h5 class="mb-0">Senarai Reject</h5>
             <div>
                 <?php if ($ENABLE_ADD): ?>
-                    <a class="btn btn-primary" href="<?php echo module_url("reject/form_add"); ?>">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRejectModal">
                         <i class="ti ti-plus"></i> Tambah Reject Baru
-                    </a>
+                    </button>
                 <?php endif; ?>
                 <!-- Graph Button -->
-<a class="btn btn-success me-2" href="<?php echo module_url("reject/graph"); ?>">
-    <i class="ti ti-chart-bar"></i> Jana Graf
-</a>
+                <a class="btn btn-success me-2" href="<?php echo module_url("reject/graph"); ?>">
+                    <i class="ti ti-chart-bar"></i> Jana Graf
+                </a>
             </div>
         </div>
     </div>
@@ -114,15 +114,18 @@ echo "Bilangan Data " . $data->num_rows();
                 <tbody>
                     <?php $i = 0; foreach ($data->result() as $row) { ?>
                     <tr>
-                        <td><?php echo ++$i; ?></td>
+                        <td></td>
                         <td><?php echo htmlspecialchars($row->T06_JENIS_REJECT); ?></td>
                         <td><?php echo htmlspecialchars($row->T06_TARIKH); ?></td>
                         
                         <?php if ($ENABLE_MANAGE): ?>
                         <td>
-                            <a class="btn btn-sm btn-warning" href="<?php echo module_url("reject/form_edit/" . $row->T06_ID_REJECT); ?>">
-                                <i class="ti ti-edit"></i> Edit
-                            </a>
+                            <button class="btn btn-sm btn-warning edit-btn" 
+                                    data-id="<?php echo $row->T06_ID_REJECT; ?>"
+                                    data-jenis="<?php echo htmlspecialchars($row->T06_JENIS_REJECT); ?>"
+                                    data-tarikh="<?php echo $row->T06_TARIKH; ?>">
+                                <i class="ti ti-edit"></i> Kemaskini
+                            </button>
                         </td>
                         <?php endif; ?>
 
@@ -145,19 +148,141 @@ echo "Bilangan Data " . $data->num_rows();
     </div>
 </div>
 
+<!-- Add Reject Modal -->
+<div class="modal fade" id="addRejectModal" tabindex="-1" aria-labelledby="addRejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addRejectModalLabel">
+                    <i class="ti ti-plus"></i> Tambah Reject Baharu
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="rejectForm" method="POST" action="<?php echo module_url('reject/add'); ?>" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <!-- Error Alert (hidden by default) -->
+                    <div id="modalError" class="alert alert-danger d-none"></div>
+                    
+                    <!-- Tarikh -->
+                    <div class="mb-3 row align-items-center">
+                        <label for="tarikh" class="form-label fw-semibold col-sm-3 col-form-label">Tarikh</label>
+                        <div class="col-sm-9">
+                            <input type="date" class="form-control" id="tarikh" name="tarikh" required>
+                        </div>
+                    </div>
+
+                    <!-- Jenis Reject -->
+                    <div class="mb-3 row align-items-center">
+                        <label for="jenis_reject" class="form-label fw-semibold col-sm-3 col-form-label">Jenis Reject</label>
+                        <div class="col-sm-9">
+                            <select class="form-select" id="jenis_reject" name="jenis_reject" required>
+                                <option value="">Sila Pilih</option>
+                                <option value="OverExposure">OverExposure</option>
+                                <option value="UnderExposure">UnderExposure</option>
+                                <option value="Double Exposure">Double Exposure</option>
+                                <option value="Wrong Technique">Wrong Technique</option>
+                                <option value="Wrong Patient / Exam">Wrong Patient / Exam</option>
+                                <option value="Wrong Marker">Wrong Marker</option>
+                                <option value="Collimation Error">Collimation Error</option>
+                                <option value="Patient Movement">Patient Movement</option>
+                                <option value="Patient Related Artifact">Patient Related Artifact</option>
+                                <option value="Equipment Fault">Equipment Fault</option>
+                                <option value="Detector / imaging plate">Detector / imaging plate</option>
+                                <option value="Image artifact">Image artifact</option>
+                                <option value="Processing Fault">Processing Fault</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="ti ti-x"></i> Batal
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-check"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Reject Modal -->
+<div class="modal fade" id="editRejectModal" tabindex="-1" aria-labelledby="editRejectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editRejectModalLabel">
+                    <i class="ti ti-edit"></i> Edit Reject
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editRejectForm" method="POST" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <!-- Error Alert (hidden by default) -->
+                    <div id="editModalError" class="alert alert-danger d-none"></div>
+                    
+                    <!-- Hidden ID field -->
+                    <input type="hidden" id="edit_reject_id" name="reject_id">
+                    
+                    <!-- Tarikh -->
+                    <div class="mb-3 row align-items-center">
+                        <label for="edit_tarikh" class="form-label fw-semibold col-sm-3 col-form-label">Tarikh</label>
+                        <div class="col-sm-9">
+                            <input type="date" class="form-control" id="edit_tarikh" name="tarikh" required>
+                        </div>
+                    </div>
+
+                    <!-- Jenis Reject -->
+                    <div class="mb-3 row align-items-center">
+                        <label for="edit_jenis_reject" class="form-label fw-semibold col-sm-3 col-form-label">Jenis Reject</label>
+                        <div class="col-sm-9">
+                            <select class="form-select" id="edit_jenis_reject" name="jenis_reject" required>
+                                <option value="" disabled>Sila Pilih</option>
+                                <option value="OverExposure">OverExposure</option>
+                                <option value="UnderExposure">UnderExposure</option>
+                                <option value="Double Exposure">Double Exposure</option>
+                                <option value="Wrong Technique">Wrong Technique</option>
+                                <option value="Wrong Patient / Exam">Wrong Patient / Exam</option>
+                                <option value="Wrong Marker">Wrong Marker</option>
+                                <option value="Collimation Error">Collimation Error</option>
+                                <option value="Patient Movement">Patient Movement</option>
+                                <option value="Patient Related Artifact">Patient Related Artifact</option>
+                                <option value="Equipment Fault">Equipment Fault</option>
+                                <option value="Detector / imaging plate">Detector / imaging plate</option>
+                                <option value="Image artifact">Image artifact</option>
+                                <option value="Processing Fault">Processing Fault</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="ti ti-x"></i> Batal
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ti ti-check"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
 $(document).ready(function() {
     // Initialize DataTable with pagination
     var table = $('#reject-table').DataTable({
         "pageLength": 10,
         "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
-        "order": [[0, 'asc']],
+        "order": [[2, 'desc']], // Sort by date column (index 2) in descending order
         "columnDefs": [
             { "orderable": false, "targets": -1 }, // Delete
             <?php if ($ENABLE_MANAGE): ?>
             { "orderable": false, "targets": -2 }, // Edit
             <?php endif; ?>
-            { "orderable": false, "targets": 0 } // No column (row numbering)
+            { "orderable": false, "targets": 0 }, // No column (row numbering)
+            { "type": "date", "targets": 2 } // Ensure date column is treated as date for proper sorting
         ],
         "language": {
             "search": "Cari:",
@@ -175,7 +300,115 @@ $(document).ready(function() {
             "emptyTable": "Tiada data tersedia dalam jadual",
             "loadingRecords": "Memuatkan...",
             "processing": "Memproses..."
+        },
+        "drawCallback": function(settings) {
+            // Re-number the rows after each draw (sort, filter, pagination)
+            var api = this.api();
+            var start = api.page.info().start;
+            api.column(0, {page: 'current'}).nodes().each(function(cell, i) {
+                cell.innerHTML = start + i + 1;
+            });
         }
+    });
+
+    // Set today's date when modal opens
+    $('#addRejectModal').on('show.bs.modal', function() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+        
+        // Set the initial value to today
+        document.getElementById("tarikh").value = todayStr;
+        
+        // Clear any previous error messages
+        $('#modalError').addClass('d-none');
+        
+        // Reset form
+        document.getElementById('rejectForm').reset();
+        document.getElementById("tarikh").value = todayStr; // Set again after reset
+    });
+
+    // Form validation before submit
+    $('#rejectForm').on('submit', function(e) {
+        const jenisReject = $('#jenis_reject').val();
+        const tarikh = $('#tarikh').val();
+        
+        // Clear previous error
+        $('#modalError').addClass('d-none');
+
+        if (!jenisReject) {
+            e.preventDefault();
+            $('#modalError').removeClass('d-none').text('Sila pilih jenis reject.');
+            $('#jenis_reject').focus();
+            return false;
+        }
+
+        if (!tarikh) {
+            e.preventDefault();
+            $('#modalError').removeClass('d-none').text('Sila pilih tarikh.');
+            $('#tarikh').focus();
+            return false;
+        }
+        
+        // If validation passes, show loading state
+        $(this).find('button[type="submit"]').prop('disabled', true).html('<i class="ti ti-loader"></i> Menyimpan...');
+    });
+
+    // Handle Edit button click
+    $(document).on('click', '.edit-btn', function(e) {
+        e.preventDefault();
+        
+        const rejectId = $(this).data('id');
+        const jenisReject = $(this).data('jenis');
+        const tarikh = $(this).data('tarikh');
+        
+        // Populate the edit modal with current data
+        $('#edit_reject_id').val(rejectId);
+        $('#edit_jenis_reject').val(jenisReject);
+        
+        // Format date for input field (convert from database format to YYYY-MM-DD)
+        if (tarikh) {
+            const dateObj = new Date(tarikh);
+            const formattedDate = dateObj.toISOString().split('T')[0];
+            $('#edit_tarikh').val(formattedDate);
+        }
+        
+        // Set form action URL
+        $('#editRejectForm').attr('action', '<?php echo module_url("reject/save/"); ?>' + rejectId);
+        
+        // Clear any previous error messages
+        $('#editModalError').addClass('d-none');
+        
+        // Show the modal
+        $('#editRejectModal').modal('show');
+    });
+
+    // Edit form validation before submit
+    $('#editRejectForm').on('submit', function(e) {
+        const jenisReject = $('#edit_jenis_reject').val();
+        const tarikh = $('#edit_tarikh').val();
+        
+        // Clear previous error
+        $('#editModalError').addClass('d-none');
+
+        if (!jenisReject) {
+            e.preventDefault();
+            $('#editModalError').removeClass('d-none').text('Sila pilih jenis reject.');
+            $('#edit_jenis_reject').focus();
+            return false;
+        }
+
+        if (!tarikh) {
+            e.preventDefault();
+            $('#editModalError').removeClass('d-none').text('Sila pilih tarikh.');
+            $('#edit_tarikh').focus();
+            return false;
+        }
+        
+        // If validation passes, show loading state
+        $(this).find('button[type="submit"]').prop('disabled', true).html('<i class="ti ti-loader"></i> Menyimpan...');
     });
 
     // Simple delete function - exactly like Pesakit controller
