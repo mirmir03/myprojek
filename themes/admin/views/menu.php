@@ -78,11 +78,27 @@ $current_role_short = isset($role_short_names[$userRoleId]) ? $role_short_names[
         <!-- ROLE-SPECIFIC MENU ITEMS -->
         <?php if ($userRoleId == '1'): // Juru Xray ?>
             
+            <!-- Dashboard -->
+            <li class="sidebar-item">
+                <a href="<?= base_url() ?>manage/dashboard" class="sidebar-link">
+                    <iconify-icon icon="solar:user-plus-linear" class="aside-icon"></iconify-icon>
+                    <span class="hide-menu">Dashboard</span>
+                </a>
+            </li>
+
             <!-- Register New Patient -->
             <li class="sidebar-item">
                 <a href="<?= base_url() ?>manage/pesakit/listpesakit" class="sidebar-link">
                     <iconify-icon icon="solar:user-plus-linear" class="aside-icon"></iconify-icon>
                     <span class="hide-menu">Tab Pendaftaran</span>
+                </a>
+            </li>
+
+            <!-- Register New Patient -->
+            <li class="sidebar-item">
+                <a href="<?= base_url() ?>manage/pesakit/patient_graph" class="sidebar-link">
+                    <iconify-icon icon="solar:user-plus-linear" class="aside-icon"></iconify-icon>
+                    <span class="hide-menu">Reporting</span>
                 </a>
             </li>
 
@@ -102,9 +118,10 @@ $current_role_short = isset($role_short_names[$userRoleId]) ? $role_short_names[
                 </a>
             </li>
 
+             <!-- Manage Notifikasi -->
            <li class="sidebar-item">
     <a href="<?= base_url() ?>manage/notifikasi/index" class="sidebar-link">
-        <iconify-icon icon="solar:settings-linear" class="aside-icon"></iconify-icon>
+        <i class="fa fa-lg fa-bell"></i>
         <span class="hide-menu">
             Pesanan Item Xray
             <span id="notificationBadge" class="badge bg-danger ms-2" style="<?= $unreceived_count > 0 ? '' : 'display: none;' ?>">
@@ -138,6 +155,7 @@ $current_role_short = isset($role_short_names[$userRoleId]) ? $role_short_names[
                     </li>
                 </ul>
             </li>
+
 
         <?php elseif ($userRoleId == '2'): // Doktor ?>
             

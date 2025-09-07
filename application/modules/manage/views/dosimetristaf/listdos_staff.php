@@ -86,6 +86,8 @@ if (in_array($userRoleName, ['doctor', 'dentist'])) {
         background-color: #e9ecef !important;
     }
 </style>
+<link rel="stylesheet" 
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <div class="card">
     <div class="card-header bg-white">
@@ -133,26 +135,16 @@ if (in_array($userRoleName, ['doctor', 'dentist'])) {
             <div class="accordion-body p-0">
 
                 <!-- Table for DOS_SETARA1 (AVE1) -->
-                <div class="d-flex align-items-center ms-3 me-3">
-                    <h5 class="mb-0 me-2">Dos Setara 1 (T04_DOS_AVE1)</h5>
-                    <?php 
-                    $firstId = null;
-                    foreach ($year_data as $year => $data) {
-                        if (!empty($data['id'])) {
-                            $firstId = $data['id'];
-                            break;
-                        }
-                    }
-                    ?>
-                    <?php if ($ENABLE_MANAGE && $firstId): ?>
-                        <a href="<?= module_url('dosimetristaf/form_edit/' . $firstId); ?>" 
-                           class="btn btn-sm btn-outline-secondary"
-                           data-bs-toggle="tooltip"
-                           title="Edit semua data tahun ini">
-                            <i class="ti ti-edit"></i>
-                        </a>
-                    <?php endif; ?>
-                </div>
+<!-- Table for DOS_SETARA1 (AVE1) -->
+<div class="d-flex justify-content-between align-items-center ms-3 me-3">
+    <h5 class="mb-0">
+        Dos Setara 1 (T04_DOS_AVE1)
+        <i class="bi bi-question-circle-fill text-muted ms-1"
+           data-bs-toggle="tooltip"
+           title="Sila klik nombor data bulanan untuk mengemas kini data dosimetri "></i>
+    </h5>
+</div>
+
 
                 <div class="table-responsive mt-3">
                     <table class="table table-bordered">
@@ -206,6 +198,9 @@ if (in_array($userRoleName, ['doctor', 'dentist'])) {
                 <!-- Table for DOS_SETARA2 (AVE2) -->
                 <div class="table-responsive mt-4 mb-3">
                     <h5 class="ms-3">Dos Setara 2 (T04_DOS_AVE2)</h5>
+                    <i class="bi bi-question-circle-fill text-muted ms-1"
+           data-bs-toggle="tooltip"
+           title="Sila klik nombor data bulanan untuk mengemas kini data dosimetri "></i>
                     <table class="table table-bordered">
                         <thead class="table-light">
                             <tr>
@@ -265,6 +260,11 @@ if (in_array($userRoleName, ['doctor', 'dentist'])) {
 </div>
 
 <script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+    new bootstrap.Tooltip(tooltipTriggerEl)
+})
+
     $(document).ready(function() {
         // Initialize tooltips
         $('[data-bs-toggle="tooltip"]').tooltip();

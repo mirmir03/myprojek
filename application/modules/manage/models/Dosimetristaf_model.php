@@ -210,27 +210,53 @@ public function get_record_by_month($id_dosimetri, $month, $year)
     }
 
     // ==================== GRAPH-RELATED FUNCTIONS ====================
-    public function get_dosimetri_chart_data($selected_year = null, $column = 'T04_DOS_AVE1') {
-        $this->db->select('T04_NAMA_PENGGUNA as COLUMN_NAME, SUM(' . $column . ') as TOTAL_VALUE');
-        $this->db->from('EV_T04_DOSIMETRI_STAFF');
-        
-        if ($selected_year) {
-            $this->db->where("EXTRACT(YEAR FROM T04_TARIKH) = ", $selected_year);
+    public function get_dosimetri_chart_data($selected_year = null, $column = 'T04_DOS_AVE1', $selected_staff = null) {
+    // First get the staff name if filtering by staff ID
+    $staff_name = null;
+    if ($selected_staff) {
+        $staff = $this->db->select('T04_NAMA_PENGGUNA')
+                         ->where('T04_ID_DOS_STAF', $selected_staff)
+                         ->get('EV_T04_DOSIMETRI_STAFF')
+                         ->row();
+        if ($staff) {
+            $staff_name = $staff->T04_NAMA_PENGGUNA;
         }
-        
-        $this->db->group_by('T04_NAMA_PENGGUNA');
-        $this->db->order_by('TOTAL_VALUE', 'DESC');
-        
-        $query = $this->db->get();
-        $results = $query->result();
-        
-        // Convert Oracle integers back to decimals for chart display
-        foreach ($results as $row) {
-            $row->TOTAL_VALUE = $this->_toDecimal($row->TOTAL_VALUE);
-        }
-        
-        return $results;
     }
+
+    // Main query
+    $this->db->select('T04_NAMA_PENGGUNA as COLUMN_NAME, SUM(' . $column . ') as TOTAL_VALUE');
+    $this->db->from('EV_T04_DOSIMETRI_STAFF');
+    
+    if ($selected_year) {
+        $this->db->where("EXTRACT(YEAR FROM T04_TARIKH) = ", $selected_year);
+    }
+    
+    if ($staff_name) {
+        $this->db->where('T04_NAMA_PENGGUNA', $staff_name);
+    }
+    
+    $this->db->group_by('T04_NAMA_PENGGUNA');
+    $this->db->order_by('TOTAL_VALUE', 'DESC');
+    
+    $query = $this->db->get();
+    $results = $query->result();
+    
+    foreach ($results as $row) {
+        $row->TOTAL_VALUE = $this->_toDecimal($row->TOTAL_VALUE);
+    }
+    
+    return $results;
+}
+
+public function get_all_staff() {
+    $this->db->select('T04_NAMA_PENGGUNA as name, T04_ID_DOS_STAF as id');
+    $this->db->distinct(); // Add this line to apply DISTINCT to the entire query
+    $this->db->from('EV_T04_DOSIMETRI_STAFF');
+    $this->db->order_by('T04_NAMA_PENGGUNA', 'ASC');
+    
+    $query = $this->db->get();
+    return $query->result_array();
+}
 
     public function get_dos_chart_data($dos_column, $selected_year = null) {
         $this->db->select("T04_NAMA_PENGGUNA, SUM($dos_column) as TOTAL_VALUE");

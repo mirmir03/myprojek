@@ -164,10 +164,10 @@ class Reject extends Admin_Controller
     }
 
     // Show reject analysis graph
-    public function graph()
+   public function graph()
 {
     $selected_month = $this->input->get('month');
-    $selected_year = $this->input->get('year');
+    $selected_year = $this->input->get('year') ?: date('Y'); // Default to current year
 
     // Chart Data
     $chart_data = $this->reject_model->get_reject_chart_data($selected_month, $selected_year);
@@ -180,23 +180,178 @@ class Reject extends Admin_Controller
     }
 
     // Notes Data
-    $notes = $this->reject_notes_model->get_notes_grouped_by_year(); // For dropdown
-    $year_notes = $this->reject_notes_model->get_notes_by_month_year($selected_month, $selected_year); // For display
+    $notes = $this->reject_notes_model->get_notes_grouped_by_year();
+    $year_notes = $this->reject_notes_model->get_notes_by_month_year($selected_month, $selected_year);
 
-    // Set data for graph and notes
+    // Get all reject types
+    $sql = "SELECT DISTINCT T06_JENIS_REJECT 
+            FROM EV_T06_REJECT_ANALYSIS 
+            ORDER BY T06_JENIS_REJECT";
+    $stmt = oci_parse($this->db->conn_id, $sql);
+    oci_execute($stmt);
+    $reject_types = [];
+    while (($row = oci_fetch_assoc($stmt)) != false) {
+        $reject_types[] = $row['T06_JENIS_REJECT'];
+    }
+    oci_free_statement($stmt);
+
+    // Prepare table data with monthly counts and totals
+    $table_data = [];
+    $totals = array_fill(1, 12, 0); // Initialize monthly totals
+    
+    foreach ($reject_types as $type) {
+        $row_data = ["reject_type" => $type];
+        $row_total = 0; // Initialize row total
+        
+        for ($month = 1; $month <= 12; $month++) {
+            // Get count for this type and month
+            $chart_data = $this->reject_model->get_reject_chart_data($month, $selected_year);
+            $count = 0;
+            foreach ($chart_data as $row) {
+                if ($row->T06_JENIS_REJECT == $type) {
+                    $count = $row->TOTAL_REJECTS;
+                    break;
+                }
+            }
+            
+            $row_data["m".$month] = $count;
+            $row_total += $count;
+            $totals[$month] += $count; // Add to monthly total
+        }
+        
+        // Add the row total
+        $row_data['total'] = $row_total;
+        $table_data[] = $row_data;
+    }
+
+    // Pass all data to view
     $this->template->title("Graf Analisis Reject");
     $this->template->set("chart_labels", json_encode($labels));
     $this->template->set("chart_values", json_encode($values));
     $this->template->set("selected_month", $selected_month);
     $this->template->set("selected_year", $selected_year);
-
-    // Add these two lines
     $this->template->set("notes", $notes);
     $this->template->set("year_notes", $year_notes);
+    $this->template->set("table_data", $table_data);
+    $this->template->set("reject_types", $reject_types);
+    $this->template->set("totals", $totals);
 
     $this->template->render();
 }
+public function table_report()
+{
+    $selected_month = $this->input->get('month');
+    $selected_year = $this->input->get('year') ?: date('Y');
 
+    // Get all unique reject types first
+    $sql_types = "SELECT DISTINCT T06_JENIS_REJECT 
+                  FROM EV_T06_REJECT_ANALYSIS 
+                  ORDER BY T06_JENIS_REJECT";
+    $stmt_types = oci_parse($this->db->conn_id, $sql_types);
+    oci_execute($stmt_types);
+    $reject_types = [];
+    while (($row = oci_fetch_assoc($stmt_types)) != false) {
+        $reject_types[] = $row['T06_JENIS_REJECT'];
+    }
+    oci_free_statement($stmt_types);
+
+    // Single query to get all data
+    $sql = "SELECT 
+               T06_JENIS_REJECT,
+               EXTRACT(MONTH FROM T06_TARIKH) as month,
+               EXTRACT(YEAR FROM T06_TARIKH) as year,
+               COUNT(*) as count
+            FROM EV_T06_REJECT_ANALYSIS";
+    
+    $where = [];
+    $params = [];
+    
+    if (!empty($selected_year)) {
+        $where[] = "EXTRACT(YEAR FROM T06_TARIKH) = :year";
+        $params[':year'] = $selected_year;
+    }
+    
+    if (!empty($selected_month)) {
+        $where[] = "EXTRACT(MONTH FROM T06_TARIKH) = :month";
+        $params[':month'] = $selected_month;
+    }
+    
+    if (!empty($where)) {
+        $sql .= " WHERE " . implode(" AND ", $where);
+    }
+    
+    $sql .= " GROUP BY T06_JENIS_REJECT, EXTRACT(MONTH FROM T06_TARIKH), EXTRACT(YEAR FROM T06_TARIKH)";
+    
+    $stmt = oci_parse($this->db->conn_id, $sql);
+    foreach ($params as $key => $val) {
+        oci_bind_by_name($stmt, $key, $val); // Fixed: use $val instead of $params[$key]
+    }
+    oci_execute($stmt);
+    
+    // Process results into structured data
+    $data = [];
+    while ($row = oci_fetch_assoc($stmt)) {
+        $type = $row['T06_JENIS_REJECT'];
+        $month = $row['MONTH'];
+        $data[$type][$month] = $row['COUNT'];
+    }
+    oci_free_statement($stmt);
+
+    // Prepare table data with monthly counts and totals
+    $table_data = [];
+    $totals = array_fill(1, 12, 0); // Initialize monthly totals
+    
+    foreach ($reject_types as $type) {
+        $row_data = ["reject_type" => $type];
+        $row_total = 0; // Initialize row total
+        
+        if (!empty($selected_month)) {
+            // For filtered month - get count only for that month
+            $count = 0;
+            $chart_data = $this->reject_model->get_reject_chart_data($selected_month, $selected_year);
+            
+            foreach ($chart_data as $row) {
+                if ($row->T06_JENIS_REJECT == $type) {
+                    $count = $row->TOTAL_REJECTS;
+                    break;
+                }
+            }
+            
+            $row_data["m".$selected_month] = $count;
+            $row_total = $count; // Jumlah should equal the filtered month's count
+            $totals[$selected_month] += $count;
+        } else {
+            // For no month filter - get counts for all months
+            for ($month = 1; $month <= 12; $month++) {
+                $count = 0;
+                $chart_data = $this->reject_model->get_reject_chart_data($month, $selected_year);
+                
+                foreach ($chart_data as $row) {
+                    if ($row->T06_JENIS_REJECT == $type) {
+                        $count = $row->TOTAL_REJECTS;
+                        break;
+                    }
+                }
+                
+                $row_data["m".$month] = $count;
+                $row_total += $count;
+                $totals[$month] += $count;
+            }
+        }
+        
+        // Add the row total (will be either filtered month or sum of all months)
+        $row_data['total'] = $row_total;
+        $table_data[] = $row_data;
+    }
+
+    $this->template->title("Laporan Jadual Reject");
+    $this->template->set("table_data", $table_data);
+    $this->template->set("reject_types", $reject_types);
+    $this->template->set("selected_month", $selected_month);
+    $this->template->set("selected_year", $selected_year);
+    $this->template->set("totals", $totals);
+    $this->template->render();
+}
     // AJAX - Get chart data
     public function get_chart_data()
     {
@@ -277,8 +432,7 @@ class Reject extends Admin_Controller
     $this->template->set("notes", $notes_by_year);
     $this->template->set("selected_year", $selected_year);
     $this->template->render();
-}
-  
+}  
      //Save a new note
     public function save_note() 
     {
@@ -313,9 +467,7 @@ class Reject extends Admin_Controller
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to save note']);
         }
-    }
-    
-    
+    }  
      // Get note for specific period
     public function get_note()
     {
@@ -330,7 +482,6 @@ class Reject extends Admin_Controller
             'period' => $month . '-' . $year
         ]);
     }
-
      
      // Delete note by ID (updated method)
     public function delete_note()
@@ -363,8 +514,6 @@ class Reject extends Admin_Controller
         ]);
     }
 }
-
-
      // Delete all notes
     public function delete_all_notes()
     {
@@ -413,8 +562,7 @@ class Reject extends Admin_Controller
             'count' => count($notes)
         ]);
     }
-    
-     // Page to manage all notes
+         // Page to manage all notes
     public function manage_notes()
     {
         $all_notes = $this->reject_notes_model->get_all_notes();
@@ -457,6 +605,150 @@ class Reject extends Admin_Controller
             'success' => $result,
             'message' => $result ? 'Nota berjaya dikemaskini' : 'Gagal mengemaskini nota'
         ]);
+    }  
+
+    // In Reject.php controller
+public function peratus()
+{
+    $selected_month = $this->input->get('month');
+    $selected_year = $this->input->get('year') ?: date('Y');
+    
+    // Get total rejects for the year
+    $total_rejects = $this->reject_model->get_total_rejects_by_year($selected_year);
+    
+    // Check if we're returning to table view after calculation
+    $show_table = $this->input->post('show_table') ?? false;
+    $product_count = $this->input->post('product_count') ?? 1;
+    
+    if ($show_table) {
+        // Get all reject types (same as graph method)
+        $sql = "SELECT DISTINCT T06_JENIS_REJECT 
+                FROM EV_T06_REJECT_ANALYSIS 
+                ORDER BY T06_JENIS_REJECT";
+        $stmt = oci_parse($this->db->conn_id, $sql);
+        oci_execute($stmt);
+        $reject_types = [];
+        while (($row = oci_fetch_assoc($stmt)) != false) {
+            $reject_types[] = $row['T06_JENIS_REJECT'];
+        }
+        oci_free_statement($stmt);
+
+        // Prepare table data with monthly counts and totals (same as graph method)
+        $table_data = [];
+        $totals = array_fill(1, 12, 0);
+        
+        foreach ($reject_types as $type) {
+            $row_data = ["REJECT_TYPE" => $type];
+            $row_total = 0;
+            
+            if (!empty($selected_month)) {
+                // For filtered month - get count only for that month
+                $count = 0;
+                $chart_data = $this->reject_model->get_reject_chart_data($selected_month, $selected_year);
+                
+                foreach ($chart_data as $row) {
+                    if ($row->T06_JENIS_REJECT == $type) {
+                        $count = $row->TOTAL_REJECTS;
+                        break;
+                    }
+                }
+                
+                $row_data["m".$selected_month] = $count;
+                $row_total = $count;
+                $totals[$selected_month] += $count;
+            } else {
+                // For no month filter - get counts for all months
+                for ($month = 1; $month <= 12; $month++) {
+                    $count = 0;
+                    $chart_data = $this->reject_model->get_reject_chart_data($month, $selected_year);
+                    
+                    foreach ($chart_data as $row) {
+                        if ($row->T06_JENIS_REJECT == $type) {
+                            $count = $row->TOTAL_REJECTS;
+                            break;
+                        }
+                    }
+                    
+                    $row_data["m".$month] = $count;
+                    $row_total += $count;
+                    $totals[$month] += $count;
+                }
+            }
+            
+            $row_data['TOTAL'] = $row_total;
+            $table_data[] = $row_data;
+        }
+        
+        $this->template->set("table_data", $table_data);
+        $this->template->set("totals", $totals);
+        $this->template->set("selected_month", $selected_month);
     }
     
+    $this->template->title("Kira Peratusan Reject");
+    $this->template->set("selected_year", $selected_year);
+    $this->template->set("total_rejects", $total_rejects);
+    $this->template->set("show_table", $show_table);
+    $this->template->set("product_count", $product_count);
+    $this->template->render();
+}
+// Add this method to your Reject controller (reusing your existing logic)
+public function get_percentage_table_data()
+{
+    $selected_year = $this->input->post('year') ?: date('Y');
+    $product_count = $this->input->post('product_count') ?: 1;
+    
+    // Get all reject types (same as your existing code)
+    $sql = "SELECT DISTINCT T06_JENIS_REJECT 
+            FROM EV_T06_REJECT_ANALYSIS 
+            ORDER BY T06_JENIS_REJECT";
+    $stmt = oci_parse($this->db->conn_id, $sql);
+    oci_execute($stmt);
+    $reject_types = [];
+    while (($row = oci_fetch_assoc($stmt)) != false) {
+        $reject_types[] = $row['T06_JENIS_REJECT'];
+    }
+    oci_free_statement($stmt);
+
+    // Prepare table data (same logic as your existing code)
+    $table_data = [];
+    $totals = array_fill(1, 12, 0);
+    
+    foreach ($reject_types as $type) {
+        $row_data = ["REJECT_TYPE" => $type];
+        $row_total = 0;
+        
+        // Get counts for all months (no month filter for percentage table)
+        for ($month = 1; $month <= 12; $month++) {
+            $count = 0;
+            $chart_data = $this->reject_model->get_reject_chart_data($month, $selected_year);
+            
+            foreach ($chart_data as $row) {
+                if ($row->T06_JENIS_REJECT == $type) {
+                    $count = $row->TOTAL_REJECTS;
+                    break;
+                }
+            }
+            
+            $row_data["m".$month] = $count;
+            $row_total += $count;
+            $totals[$month] += $count;
+        }
+        
+        $row_data['TOTAL'] = $row_total;
+        $table_data[] = $row_data;
+    }
+    
+    // Calculate overall percentage
+    $total_rejects = array_sum(array_column($table_data, 'TOTAL'));
+    $overall_percentage = ($product_count > 0) ? ($total_rejects / $product_count) * 100 : 0;
+    
+    // Return JSON response
+    echo json_encode([
+        'success' => true,
+        'table_data' => $table_data,
+        'totals' => $totals,
+        'overall_percentage' => $overall_percentage,
+        'total_rejects' => $total_rejects
+    ]);
+}
 }

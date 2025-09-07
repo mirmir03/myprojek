@@ -50,6 +50,7 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
+            min-width: 200px;
         }
 
         .filter-group label {
@@ -64,11 +65,11 @@
             border-radius: 6px;
             font-size: 14px;
             background: white;
-            min-width: 120px;
+            width: 100%;
         }
 
         .filter-btn {
-            background: #007bff;
+            background: #4e73df;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -81,7 +82,7 @@
         }
 
         .filter-btn:hover {
-            background: #0056b3;
+            background: #2e59d9;
         }
 
         .chart-section {
@@ -119,16 +120,16 @@
 
         .legend-color {
             width: 16px;
-            height: 3px;
-            border-radius: 2px;
-        }
-
-        .legend-color.green {
-            background: #28a745;
+            height: 16px;
+            border-radius: 4px;
         }
 
         .legend-color.blue {
-            background: #007bff;
+            background: #6c8ebf;
+        }
+
+        .legend-color.teal {
+            background: #79a8b9;
         }
 
         .chart-container {
@@ -144,20 +145,25 @@
             height: 100% !important;
         }
 
-        .chart-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
         @media (max-width: 768px) {
-            .chart-grid {
-                grid-template-columns: 1fr;
-            }
-            
             .filter-form {
                 flex-direction: column;
                 align-items: stretch;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .legend {
+                flex-wrap: wrap;
+                gap: 10px;
             }
         }
     </style>
@@ -166,7 +172,7 @@
     <div class="container">
         <h1>Graf Analisis Dosimetri Staf</h1>
 
-        <!-- Filter Section - Year Only -->
+        <!-- Filter Section -->
         <div class="filter-section">
             <form method="GET" action="<?php echo current_url(); ?>" class="filter-form">
                 <div class="filter-group">
@@ -176,6 +182,18 @@
                         <?php foreach($years as $year): ?>
                             <option value="<?php echo $year; ?>" <?php echo ($selected_year == $year) ? 'selected' : ''; ?>>
                                 <?php echo $year; ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="staff">Staf:</label>
+                    <select name="staff" id="staff">
+                        <option value="">Semua Staf</option>
+                        <?php foreach($staff_list as $staff): ?>
+                            <option value="<?php echo $staff['id']; ?>" <?php echo ($selected_staff == $staff['id']) ? 'selected' : ''; ?>>
+                                <?php echo $staff['name']; ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -191,11 +209,11 @@
                 <div class="chart-title">Jumlah Dos Terkumpul</div>
                 <div class="legend">
                     <div class="legend-item">
-                        <div class="legend-color green"></div>
+                        <div class="legend-color blue"></div>
                         <span>T04_DOS_AVE1</span>
                     </div>
                     <div class="legend-item">
-                        <div class="legend-color blue"></div>
+                        <div class="legend-color teal"></div>
                         <span>T04_DOS_AVE2</span>
                     </div>
                 </div>
@@ -230,36 +248,81 @@
             return index !== -1 ? values_ave2[index] : 0;
         });
 
-        var combinedChart = new Chart(ctx, {
-            type: 'line',
+         // Global chart variable
+    var combinedChart;
+
+    function initializeOrUpdateChart() {
+        // Get the data
+        var labels_ave1 = <?php echo $chart_labels_ave1; ?>;
+        var values_ave1 = <?php echo $chart_values_ave1; ?>;
+        var labels_ave2 = <?php echo $chart_labels_ave2; ?>;
+        var values_ave2 = <?php echo $chart_values_ave2; ?>;
+        
+        // Create a combined labels array
+        var allLabels = [...new Set([...labels_ave1, ...labels_ave2])];
+        
+        // Map data to combined labels
+        var data_ave1 = allLabels.map(label => {
+            var index = labels_ave1.indexOf(label);
+            return index !== -1 ? values_ave1[index] : 0;
+        });
+        
+        var data_ave2 = allLabels.map(label => {
+            var index = labels_ave2.indexOf(label);
+            return index !== -1 ? values_ave2[index] : 0;
+        });
+
+        // Check if we have any data to display
+        var hasData = data_ave1.some(val => val > 0) || data_ave2.some(val => val > 0);
+        
+        if (!hasData) {
+            // Display a message if no data
+            document.querySelector('.chart-container').innerHTML = 
+                '<div class="no-data-message">Tiada data untuk paparan graf</div>';
+            if (combinedChart) {
+                combinedChart.destroy();
+            }
+            return;
+        }
+
+        // Get or create the canvas element
+        var canvas = document.querySelector('#combinedChart');
+        if (!canvas) {
+            var container = document.querySelector('.chart-container');
+            container.innerHTML = '<canvas id="combinedChart"></canvas>';
+            canvas = document.querySelector('#combinedChart');
+        }
+
+        var ctx = canvas.getContext('2d');
+        
+        // Destroy existing chart if it exists
+        if (combinedChart) {
+            combinedChart.destroy();
+        }
+
+        // Create new chart
+        combinedChart = new Chart(ctx, {
+            type: 'bar',
             data: {
                 labels: allLabels,
                 datasets: [{
                     label: 'T04_DOS_AVE1',
                     data: data_ave1,
-                    borderColor: '#28a745',
-                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#28a745',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
+                    backgroundColor: 'rgba(108, 142, 191, 0.7)',
+                    borderColor: 'rgba(108, 142, 191, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.8,
+                    categoryPercentage: 0.7
                 }, {
                     label: 'T04_DOS_AVE2',
                     data: data_ave2,
-                    borderColor: '#007bff',
-                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#007bff',
-                    pointBorderColor: '#ffffff',
-                    pointBorderWidth: 2,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
+                    backgroundColor: 'rgba(121, 168, 185, 0.7)',
+                    borderColor: 'rgba(121, 168, 185, 1)',
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    barPercentage: 0.8,
+                    categoryPercentage: 0.7
                 }]
             },
             options: {
@@ -267,21 +330,25 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        display: false // Hide default legend since we have custom legend
+                        display: false
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
                         titleColor: '#ffffff',
                         bodyColor: '#ffffff',
                         cornerRadius: 6,
-                        displayColors: true
+                        displayColors: true,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw.toFixed(3);
+                            }
+                        }
                     }
                 },
                 scales: {
                     x: {
                         grid: {
-                            display: true,
-                            color: 'rgba(0, 0, 0, 0.05)'
+                            display: false
                         },
                         ticks: {
                             color: '#6c757d',
@@ -312,14 +379,13 @@
                 interaction: {
                     intersect: false,
                     mode: 'index'
-                },
-                elements: {
-                    line: {
-                        fill: true
-                    }
                 }
             }
         });
+    }
+
+    // Initialize the chart when the page loads
+    document.addEventListener('DOMContentLoaded', initializeOrUpdateChart);
     </script>
 </body>
 </html>

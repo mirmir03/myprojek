@@ -267,4 +267,3 @@ class Pesanan extends Admin_Controller
         redirect(module_url("pesanan/listpesanan"));
     }
 }
-?>

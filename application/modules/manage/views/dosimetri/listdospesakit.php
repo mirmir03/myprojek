@@ -33,6 +33,12 @@ $ENABLE_DELETE = true;
     </div>
 
     <div class="card-body">
+        <!-- Export to Excel button moved here -->
+    <div class="mb-3">
+        <a href="<?= module_url('dosimetriPesakit/export_dosimetri_excel') ?>" class="btn btn-success">
+            <i class="ti ti-download"></i> Export ke Excel (CSV)
+        </a>
+    </div>
         <div class="table-responsive">
             <table class="table table-hover table-striped" id="dosimetri-table">
                 <thead class="table-light">
@@ -103,11 +109,7 @@ $ENABLE_DELETE = true;
                     <?php endforeach; ?>
                 </tbody>
             </table>
-            <div class="mt-3">
-    <a href="<?= module_url('dosimetriPesakit/export_dosimetri_excel') ?>" class="btn btn-success">
-        <i class="ti ti-download"></i> Export ke Excel (CSV)
-    </a>
-</div>
+            
         </div>
     </div>
 </div>

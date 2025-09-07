@@ -140,13 +140,12 @@ public function get_patient_data_enhanced($no_rujukan, $kategori)
     return $result;
 }
     // FIXED GRAPH DATA METHOD - Oracle Compatible with Better Data Type Handling
-public function get_graph_data($bahagian_utama, $kategori, $month = null, $year = null)
+public function get_graph_data($bahagian_utama, $month = null, $year = null)
 {
     // Build base query with proper GROUP BY
     $this->db->select('T01_SUB_BAHAGIAN, T01_JANTINA, COUNT(*) as count');
     $this->db->from('EV_T01_PESAKIT');
     $this->db->where('T01_BAHAGIAN_UTAMA', $bahagian_utama);
-    $this->db->where('T01_KATEGORI', $kategori);
     
     // FIXED: Handle DD-MON-YY date format (like 23-JAN-25, 08-FEB-25)
     if ($month && $year) {
@@ -396,6 +395,193 @@ public function update_comment($patient_id, $comment)
     }
 
     return $result;
+}
+public function get_active_pesakit_count()
+{
+    return $this->db->where('T01_STATUS', 1)
+                    ->count_all_results("EV_T01_PESAKIT");
+}
+
+public function get_active_pesakit_by_month($year = null)
+{
+    if (!$year) {
+        $year = date('Y');
+    }
+
+    $sql = "
+        SELECT 
+            TO_CHAR(T01_TARIKH, 'MM') AS month_num,
+            COUNT(*) AS total
+        FROM EV_T01_PESAKIT
+        WHERE T01_STATUS = 1
+        AND TO_CHAR(T01_TARIKH, 'YYYY') = ?
+        GROUP BY TO_CHAR(T01_TARIKH, 'MM')
+        ORDER BY month_num
+    ";
+
+    $query = $this->db->query($sql, [$year]);
+    $results = $query->result();
+
+    // Prepare data for Chart.js
+    $months = [
+        'Jan','Feb','Mar','Apr','May','Jun',
+        'Jul','Aug','Sep','Oct','Nov','Dec'
+    ];
+
+    $chart_data = [
+        'labels' => $months,
+        'datasets' => [[
+            'label' => 'Active Patients',
+            'data' => array_fill(0, 12, 0),
+            'backgroundColor' => 'rgba(54, 162, 235, 0.6)',
+            'borderColor' => 'rgba(54, 162, 235, 1)',
+            'borderWidth' => 1
+        ]]
+    ];
+
+    foreach ($results as $row) {
+        $index = (int)$row->MONTH_NUM - 1;
+        $chart_data['datasets'][0]['data'][$index] = (int)$row->TOTAL;
+    }
+
+    return $chart_data;
+}
+
+public function get_all_bahagian_utama_by_month($year = null)
+{
+    if (!$year) {
+        $year = date('Y');
+    }
+
+    // Select bahagian utama, month, and count of active patients
+    $sql = "
+        SELECT 
+            T01_BAHAGIAN_UTAMA,
+            TO_CHAR(T01_TARIKH, 'MM') AS month_num,
+            COUNT(*) AS total
+        FROM EV_T01_PESAKIT
+        WHERE T01_STATUS = 1
+          AND TO_CHAR(T01_TARIKH, 'YYYY') = ?
+        GROUP BY T01_BAHAGIAN_UTAMA, TO_CHAR(T01_TARIKH, 'MM')
+        ORDER BY T01_BAHAGIAN_UTAMA, month_num
+    ";
+
+    $query = $this->db->query($sql, [$year]);
+    $results = $query->result();
+
+    // Prepare months labels
+    $months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    // Collect all unique bahagian utama
+    $bahagian_list = [];
+    foreach ($results as $row) {
+        if (!in_array($row->T01_BAHAGIAN_UTAMA, $bahagian_list)) {
+            $bahagian_list[] = $row->T01_BAHAGIAN_UTAMA;
+        }
+    }
+
+    // Initialize data array for each bahagian with zeros for 12 months
+    $data_by_bahagian = [];
+    foreach ($bahagian_list as $bahagian) {
+        $data_by_bahagian[$bahagian] = array_fill(0, 12, 0);
+    }
+
+    // Fill data based on query results
+    foreach ($results as $row) {
+        $monthIndex = (int)$row->MONTH_NUM - 1;
+        $data_by_bahagian[$row->T01_BAHAGIAN_UTAMA][$monthIndex] = (int)$row->TOTAL;
+    }
+
+    // Prepare datasets for chart
+    $datasets = [];
+    $colors = [
+        '#1abc9c', '#3498db', '#9b59b6', '#e67e22', '#e74c3c',
+        '#2ecc71', '#34495e', '#f1c40f', '#7f8c8d', '#d35400'
+    ];
+
+    $colorIndex = 0;
+    foreach ($data_by_bahagian as $bahagian => $data) {
+        $datasets[] = [
+            'label' => $bahagian,
+            'data' => $data,
+            'backgroundColor' => $colors[$colorIndex % count($colors)],
+            'borderColor' => $colors[$colorIndex % count($colors)],
+            'borderWidth' => 1,
+            'fill' => false,
+            'tension' => 0.1
+        ];
+        $colorIndex++;
+    }
+
+    return [
+        'labels' => $months,
+        'datasets' => $datasets
+    ];
+}
+// Total active patients by Bahagian Utama
+public function get_active_patients_by_bahagian()
+{
+    $this->db->select('T01_BAHAGIAN_UTAMA, COUNT(*) as total');
+    $this->db->from('EV_T01_PESAKIT');
+    $this->db->where('T01_STATUS', 1);
+    $this->db->group_by('T01_BAHAGIAN_UTAMA');
+    $this->db->order_by('T01_BAHAGIAN_UTAMA');
+    return $this->db->get()->result();
+}
+
+// Patient count by gender and sub bahagian
+public function get_patient_count_by_gender_subbahagian()
+{
+    $this->db->select('T01_SUB_BAHAGIAN, T01_JANTINA, COUNT(*) as total');
+    $this->db->from('EV_T01_PESAKIT');
+    $this->db->where('T01_STATUS', 1);
+    $this->db->group_by(['T01_SUB_BAHAGIAN', 'T01_JANTINA']);
+    $this->db->order_by('T01_SUB_BAHAGIAN');
+    return $this->db->get()->result();
+}
+
+// Patient category distribution
+public function get_patient_category_distribution()
+{
+    $this->db->select('T01_KATEGORI, COUNT(*) as total');
+    $this->db->from('EV_T01_PESAKIT');
+    $this->db->where('T01_STATUS', 1);
+    $this->db->group_by('T01_KATEGORI');
+    return $this->db->get()->result();
+}
+
+// Patients with doctor comments
+public function get_patients_with_comments()
+{
+    $this->db->select('T01_ID_PESAKIT, T01_NO_RUJUKAN, T01_DOCTOR_COMMENT');
+    $this->db->from('EV_T01_PESAKIT');
+    $this->db->where('T01_STATUS', 1);
+    $this->db->where('T01_DOCTOR_COMMENT IS NOT NULL', null, false);
+    $this->db->order_by('T01_ID_PESAKIT');
+    return $this->db->get()->result();
+}
+// In Pesakit_model.php, around line 582
+public function get_filtered_report($bahagian_utama, $bulan, $tahun) {
+    $this->db->select('T01_BAHAGIAN_UTAMA as bahagian_utama, T01_SUB_BAHAGIAN as sub_bahagian, T01_JANTINA as jantina, COUNT(*) as total');
+    $this->db->from('EV_T01_PESAKIT');
+    
+    // Add proper filtering with string values quoted
+    if (!empty($bahagian_utama)) {
+        $this->db->where('T01_BAHAGIAN_UTAMA', $bahagian_utama);
+    }
+    
+    if (!empty($bulan)) {
+        $this->db->where("EXTRACT(MONTH FROM T01_TARIKH) =", $bulan);
+    }
+    
+    if (!empty($tahun)) {
+        $this->db->where("EXTRACT(YEAR FROM T01_TARIKH) =", $tahun);
+    }
+    
+    $this->db->where('T01_STATUS', 1);
+    $this->db->group_by('T01_BAHAGIAN_UTAMA, T01_SUB_BAHAGIAN, T01_JANTINA');
+    
+    return $this->db->get()->result();
 }
 
 

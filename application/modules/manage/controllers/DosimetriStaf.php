@@ -293,54 +293,60 @@ class DosimetriStaf extends Admin_Controller
 
     // ==================== GRAPH-RELATED FUNCTIONS ====================
     public function graph()
-    {
-        // Get selected month and year from the form
-        $selected_year = $this->input->get('year');
-        
-        // If no month or year is selected, use current month and year
-        if (!$selected_year) {
-            $selected_year = date('Y');
-        }
-
-        // Fetch data for both T04_DOS_AVE1 and T04_DOS_AVE2
-        $chart_data_ave1 = $this->dosimetristaf_model->get_dosimetri_chart_data($selected_year, 'T04_DOS_AVE1');
-        $chart_data_ave2 = $this->dosimetristaf_model->get_dosimetri_chart_data($selected_year, 'T04_DOS_AVE2');
-        
-        // Process data for chart labels and values
-        $labels_ave1 = [];
-        $values_ave1 = [];
-        
-        foreach ($chart_data_ave1 as $row) {
-            $labels_ave1[] = $row->COLUMN_NAME;
-            // Values are already converted to decimals in the model
-            $values_ave1[] = (float)$row->TOTAL_VALUE;
-        }
-
-        $labels_ave2 = [];
-        $values_ave2 = [];
-        
-        foreach ($chart_data_ave2 as $row) {
-            $labels_ave2[] = $row->COLUMN_NAME;
-            // Values are already converted to decimals in the model
-            $values_ave2[] = (float)$row->TOTAL_VALUE;
-        }
-
-        // Pass data to the view
-        $this->template->title("Graf Analisis Dosimetri Staf");
-        $this->template->set("chart_labels_ave1", json_encode($labels_ave1));
-        $this->template->set("chart_values_ave1", json_encode($values_ave1));
-        $this->template->set("chart_labels_ave2", json_encode($labels_ave2));
-        $this->template->set("chart_values_ave2", json_encode($values_ave2));
-        
-        // Set the selected year and month for the filter form
-        $this->template->set("selected_year", $selected_year);
-
-        // Get available years for the dropdown (for example, from the data in your database or set a range)
-        $years = range(2020, date('Y'));
-        $this->template->set("years", $years);
-
-        $this->template->render();
+{
+    // Get selected year and staff from the form
+    $selected_year = $this->input->get('year');
+    $selected_staff = $this->input->get('staff');
+    
+    // If no year is selected, use current year
+    if (!$selected_year) {
+        $selected_year = date('Y');
     }
+
+    // Fetch data for both T04_DOS_AVE1 and T04_DOS_AVE2 with staff filter
+    $chart_data_ave1 = $this->dosimetristaf_model->get_dosimetri_chart_data($selected_year, 'T04_DOS_AVE1', $selected_staff);
+    $chart_data_ave2 = $this->dosimetristaf_model->get_dosimetri_chart_data($selected_year, 'T04_DOS_AVE2', $selected_staff);
+    
+    // Process data for chart labels and values
+    $labels_ave1 = [];
+    $values_ave1 = [];
+    
+    foreach ($chart_data_ave1 as $row) {
+        $labels_ave1[] = $row->COLUMN_NAME;
+        $values_ave1[] = (float)$row->TOTAL_VALUE;
+    }
+
+    $labels_ave2 = [];
+    $values_ave2 = [];
+    
+    foreach ($chart_data_ave2 as $row) {
+        $labels_ave2[] = $row->COLUMN_NAME;
+        $values_ave2[] = (float)$row->TOTAL_VALUE;
+    }
+
+    // Get list of all staff for the filter dropdown
+    $staff_list = $this->dosimetristaf_model->get_all_staff();
+
+    // Pass data to the view
+    $this->template->title("Graf Analisis Dosimetri Staf");
+    $this->template->set("chart_labels_ave1", json_encode($labels_ave1));
+    $this->template->set("chart_values_ave1", json_encode($values_ave1));
+    $this->template->set("chart_labels_ave2", json_encode($labels_ave2));
+    $this->template->set("chart_values_ave2", json_encode($values_ave2));
+    
+    // Set the selected year and staff for the filter form
+    $this->template->set("selected_year", $selected_year);
+    $this->template->set("selected_staff", $selected_staff);
+
+    // Get available years for the dropdown
+    $years = range(2020, date('Y'));
+    $this->template->set("years", $years);
+    
+    // Pass staff list to view
+    $this->template->set("staff_list", $staff_list);
+
+    $this->template->render();
+}
 
     public function get_chart_data()
     {

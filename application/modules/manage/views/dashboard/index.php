@@ -1,123 +1,364 @@
-<div class="row">
-  <!-- Column -->
-  <div class="col-sm-6 col-lg-3">
-    <div class="card bg-box position-relative text-bg-info">
-      <div class="card-body text-center">
-        <h2 class="fw-bold fs-8 text-white">2,064</h2>
-        <h6 class="text-white mb-0 fw-bold">Sessions</h6>
+<!-- Add Font Awesome CSS in your head section -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  /* Your CSS unchanged */
+  .dashboard-card {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+  .dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  }
+  .dashboard-card .card-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+  }
+  .dashboard-card:hover .card-icon {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  .card-bg-info {
+    background: linear-gradient(135deg, #17a2b8 0%, #1abc9c 100%);
+  }
+  .card-bg-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  }
+  .card-bg-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+  }
+  .card-value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .card-label {
+    letter-spacing: 0.5px;
+    font-size: 1rem;
+  }
+  .card-footer-text {
+    font-size: 0.75rem;
+    opacity: 0.8;
+  }
+</style>
+
+<div class="row justify-content-center">
+  <!-- Active Patients Card -->
+  <div class="col-sm-6 col-lg-3 mb-4">
+    <div class="dashboard-card card-bg-info h-100 text-white">
+      <div class="card-body text-center d-flex flex-column justify-content-center p-4">
+        <i class="fas fa-user-injured card-icon"></i>
+        <h2 id="active-patient-count" class="card-value"><?= $total_active_patients; ?></h2>
+        <h6 class="card-label mb-2">Active Patients</h6>
+        <small class="card-footer-text">Updated just now</small>
       </div>
     </div>
   </div>
-  <!-- Column -->
-  <div class="col-sm-6 col-lg-3">
-    <div class="card bg-box position-relative text-bg-secondary">
-      <div class="card-body text-center">
-        <h2 class="fw-bold fs-8 text-white">2,064</h2>
-        <h6 class="text-white mb-0 fw-bold">Sessions</h6>
+  
+  <!-- Total Rejects Card -->
+  <div class="col-sm-6 col-lg-3 mb-4">
+    <div class="dashboard-card card-bg-secondary h-100 text-white">
+      <div class="card-body text-center d-flex flex-column justify-content-center p-4">
+        <i class="fas fa-times-circle card-icon"></i>
+        <h2 id="total-rejects-count" class="card-value"><?= $total_rejects_count; ?></h2>
+        <h6 class="card-label mb-2">Total Rejects</h6>
+        <small class="card-footer-text">All records</small>
       </div>
     </div>
   </div>
-  <!-- Column -->
-  <div class="col-sm-6 col-lg-3">
-    <div class="card bg-box position-relative text-bg-warning">
-      <div class="card-body text-center">
-        <h2 class="fw-bold fs-8 text-white">2,064</h2>
-        <h6 class="text-white mb-0 fw-bold">Sessions</h6>
+  
+  <!-- Pending Notifications Card -->
+  <div class="col-sm-6 col-lg-3 mb-4">
+    <div class="dashboard-card card-bg-warning h-100 text-white">
+      <div class="card-body text-center d-flex flex-column justify-content-center p-4">
+        <i class="fas fa-bell card-icon"></i>
+        <h2 id="total-unreceived-notifikasi" class="card-value"><?= $total_unreceived_notifikasi; ?></h2>
+        <h6 class="card-label mb-2">Pending Notifications</h6>
+        <small class="card-footer-text">Requires attention</small>
       </div>
     </div>
   </div>
 </div>
 
-<div class="row">
+<div class="row mt-4">
+  <!-- Active Patients Chart -->
   <div class="col-lg-6 d-flex align-items-stretch">
     <div class="card w-100">
       <div class="card-body">
-        <div class="d-md-flex align-items-center">
-          <h4 class="card-title">Income of the Year</h4>
-          <div class="ms-auto">
-            <ul class="list-inline">
-              <li class="list-inline-item">
-                <h6 class="text-muted">
-                  <i class="fa fa-circle me-1 text-success"></i>Net
-                </h6>
-              </li>
-              <li class="list-inline-item">
-                <h6 class="text-muted">
-                  <i class="fa fa-circle me-1 text-info"></i>Growth
-                </h6>
-              </li>
-            </ul>
-          </div>
+        <h4 class="card-title">Active Patients by Month (<?= date('Y') ?>)</h4>
+        <div class="mt-4">
+          <div id="activePatientsChart" style="height: 300px;"></div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Reject Analysis Chart -->
   <div class="col-lg-6 d-flex align-items-stretch">
     <div class="card w-100">
       <div class="card-body">
-        <div class="d-md-flex align-items-center no-block">
-          <h4 class="card-title">Sales of the Month</h4>
-          <div class="ms-auto">
-            <select class="form-select">
-              <option selected="">January</option>
-              <option value="1">February</option>
-              <option value="2">March</option>
-              <option value="3">April</option>
-            </select>
-          </div>
-        </div>
-        <!-- Row -->
         <div class="row mt-4">
           <div class="col-md-7">
-            <div id="sales-of-the-month" class="m-auto" style="min-height: 252.8px;"><div id="apexchartsu8izoib4" class="apexcharts-canvas apexchartsu8izoib4 apexcharts-theme-light" style="width: 316px; height: 252.8px;"><svg id="SvgjsSvg1199" width="316" height="252.8" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev" class="apexcharts-svg" xmlns:data="ApexChartsNS" transform="translate(0, 20)" style="background: transparent;"><foreignObject x="0" y="0" width="316" height="252.8"><div class="apexcharts-legend" xmlns="http://www.w3.org/1999/xhtml"></div></foreignObject><g id="SvgjsG1201" class="apexcharts-inner apexcharts-graphical" transform="translate(36, 0)"><defs id="SvgjsDefs1200"><clipPath id="gridRectMasku8izoib4"><rect id="SvgjsRect1202" width="250" height="272" x="-2" y="-2" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath><clipPath id="forecastMasku8izoib4"></clipPath><clipPath id="nonForecastMasku8izoib4"></clipPath><clipPath id="gridRectMarkerMasku8izoib4"><rect id="SvgjsRect1203" width="250" height="272" x="-2" y="-2" rx="0" ry="0" opacity="1" stroke-width="0" stroke="none" stroke-dasharray="0" fill="#fff"></rect></clipPath></defs><g id="SvgjsG1204" class="apexcharts-pie"><g id="SvgjsG1205" transform="translate(0, 0) scale(1)"><circle id="SvgjsCircle1206" r="102.08000000000001" cx="123" cy="123" fill="transparent"></circle><g id="SvgjsG1207" class="apexcharts-slices"><g id="SvgjsG1208" class="apexcharts-series apexcharts-pie-series" seriesName="Social" rel="1" data:realIndex="0"><path id="SvgjsPath1209" d="M 123 6.999999999999986 A 116.00000000000001 116.00000000000001 0 1 1 78.60872184564958 230.17002577130927 L 83.93567522417163 217.30962267875216 A 102.08000000000001 102.08000000000001 0 1 0 123 20.919999999999987 L 123 6.999999999999986 z " fill="rgba(237,241,245,1)" fill-opacity="1" stroke-opacity="1" stroke-linecap="butt" stroke-width="0" stroke-dasharray="0" class="apexcharts-pie-area apexcharts-donut-slice-0" index="0" j="0" data:angle="202.5" data:startAngle="0" data:strokeWidth="0" data:value="9" data:pathOrig="M 123 6.999999999999986 A 116.00000000000001 116.00000000000001 0 1 1 78.60872184564958 230.17002577130927 L 83.93567522417163 217.30962267875216 A 102.08000000000001 102.08000000000001 0 1 0 123 20.919999999999987 L 123 6.999999999999986 z "></path></g><g id="SvgjsG1210" class="apexcharts-series apexcharts-pie-series" seriesName="Marketing" rel="2" data:realIndex="1"><path id="SvgjsPath1211" d="M 78.60872184564958 230.17002577130927 A 116.00000000000001 116.00000000000001 0 0 1 6.999999999999986 123.00000000000001 L 20.919999999999987 123.00000000000001 A 102.08000000000001 102.08000000000001 0 0 0 83.93567522417163 217.30962267875216 L 78.60872184564958 230.17002577130927 z " fill="var(--bs-primary)" fill-opacity="1" stroke-opacity="1" stroke-linecap="butt" stroke-width="0" stroke-dasharray="0" class="apexcharts-pie-area apexcharts-donut-slice-1" index="0" j="1" data:angle="67.5" data:startAngle="202.5" data:strokeWidth="0" data:value="3" data:pathOrig="M 78.60872184564958 230.17002577130927 A 116.00000000000001 116.00000000000001 0 0 1 6.999999999999986 123.00000000000001 L 20.919999999999987 123.00000000000001 A 102.08000000000001 102.08000000000001 0 0 0 83.93567522417163 217.30962267875216 L 78.60872184564958 230.17002577130927 z "></path></g><g id="SvgjsG1212" class="apexcharts-series apexcharts-pie-series" seriesName="SearchxEngine" rel="3" data:realIndex="2"><path id="SvgjsPath1213" d="M 6.999999999999986 123.00000000000001 A 116.00000000000001 116.00000000000001 0 0 1 40.975613382360464 40.97561338236048 L 50.81853977647721 50.81853977647722 A 102.08000000000001 102.08000000000001 0 0 0 20.919999999999987 123.00000000000001 L 6.999999999999986 123.00000000000001 z " fill="var(--bs-success)" fill-opacity="1" stroke-opacity="1" stroke-linecap="butt" stroke-width="0" stroke-dasharray="0" class="apexcharts-pie-area apexcharts-donut-slice-2" index="0" j="2" data:angle="45" data:startAngle="270" data:strokeWidth="0" data:value="2" data:pathOrig="M 6.999999999999986 123.00000000000001 A 116.00000000000001 116.00000000000001 0 0 1 40.975613382360464 40.97561338236048 L 50.81853977647721 50.81853977647722 A 102.08000000000001 102.08000000000001 0 0 0 20.919999999999987 123.00000000000001 L 6.999999999999986 123.00000000000001 z "></path></g><g id="SvgjsG1214" class="apexcharts-series apexcharts-pie-series" seriesName="OrganicxSales" rel="4" data:realIndex="3"><path id="SvgjsPath1215" d="M 40.975613382360464 40.97561338236048 A 116.00000000000001 116.00000000000001 0 0 1 122.97975418077964 7.000001766781011 L 122.98218367908608 20.920001554767282 A 102.08000000000001 102.08000000000001 0 0 0 50.81853977647721 50.81853977647722 L 40.975613382360464 40.97561338236048 z " fill="var(--bs-secondary)" fill-opacity="1" stroke-opacity="1" stroke-linecap="butt" stroke-width="0" stroke-dasharray="0" class="apexcharts-pie-area apexcharts-donut-slice-3" index="0" j="3" data:angle="45" data:startAngle="315" data:strokeWidth="0" data:value="2" data:pathOrig="M 40.975613382360464 40.97561338236048 A 116.00000000000001 116.00000000000001 0 0 1 122.97975418077964 7.000001766781011 L 122.98218367908608 20.920001554767282 A 102.08000000000001 102.08000000000001 0 0 0 50.81853977647721 50.81853977647722 L 40.975613382360464 40.97561338236048 z "></path></g></g></g></g><line id="SvgjsLine1216" x1="0" y1="0" x2="246" y2="0" stroke="#b6b6b6" stroke-dasharray="0" stroke-width="1" stroke-linecap="butt" class="apexcharts-ycrosshairs"></line><line id="SvgjsLine1217" x1="0" y1="0" x2="246" y2="0" stroke-dasharray="0" stroke-width="0" stroke-linecap="butt" class="apexcharts-ycrosshairs-hidden"></line></g></svg><div class="apexcharts-tooltip apexcharts-theme-dark"><div class="apexcharts-tooltip-series-group" style="order: 1;"><span class="apexcharts-tooltip-marker" style="background-color: rgb(237, 241, 245);"></span><div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;"><div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-y-label"></span><span class="apexcharts-tooltip-text-y-value"></span></div><div class="apexcharts-tooltip-goals-group"><span class="apexcharts-tooltip-text-goals-label"></span><span class="apexcharts-tooltip-text-goals-value"></span></div><div class="apexcharts-tooltip-z-group"><span class="apexcharts-tooltip-text-z-label"></span><span class="apexcharts-tooltip-text-z-value"></span></div></div></div><div class="apexcharts-tooltip-series-group" style="order: 2;"><span class="apexcharts-tooltip-marker" style="background-color: var(--bs-primary);"></span><div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;"><div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-y-label"></span><span class="apexcharts-tooltip-text-y-value"></span></div><div class="apexcharts-tooltip-goals-group"><span class="apexcharts-tooltip-text-goals-label"></span><span class="apexcharts-tooltip-text-goals-value"></span></div><div class="apexcharts-tooltip-z-group"><span class="apexcharts-tooltip-text-z-label"></span><span class="apexcharts-tooltip-text-z-value"></span></div></div></div><div class="apexcharts-tooltip-series-group" style="order: 3;"><span class="apexcharts-tooltip-marker" style="background-color: var(--bs-success);"></span><div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;"><div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-y-label"></span><span class="apexcharts-tooltip-text-y-value"></span></div><div class="apexcharts-tooltip-goals-group"><span class="apexcharts-tooltip-text-goals-label"></span><span class="apexcharts-tooltip-text-goals-value"></span></div><div class="apexcharts-tooltip-z-group"><span class="apexcharts-tooltip-text-z-label"></span><span class="apexcharts-tooltip-text-z-value"></span></div></div></div><div class="apexcharts-tooltip-series-group" style="order: 4;"><span class="apexcharts-tooltip-marker" style="background-color: var(--bs-secondary);"></span><div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;"><div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-y-label"></span><span class="apexcharts-tooltip-text-y-value"></span></div><div class="apexcharts-tooltip-goals-group"><span class="apexcharts-tooltip-text-goals-label"></span><span class="apexcharts-tooltip-text-goals-value"></span></div><div class="apexcharts-tooltip-z-group"><span class="apexcharts-tooltip-text-z-label"></span><span class="apexcharts-tooltip-text-z-value"></span></div></div></div></div></div></div>
-            <!-- <div class="round-overlap sales"><i class="mdi mdi-cart"></i></div> -->
+            <div id="reject-analysis-chart" style="min-height: 250px;"></div>
           </div>
           <div class="col-md-5 align-self-center">
-            <h1 class="mb-0">65<small>%</small></h1>
-            <h6 class="text-muted">160 Sales January</h6>
-            <ul class="list-icons mt-4 list-style-none">
-              <li class="my-1 py-1 hstack gap-2">
-                <i class="fa fa-circle text-secondary"></i> Organic
-                Sales
-              </li>
-              <li class="my-1 py-1 hstack gap-2">
-                <i class="fa fa-circle text-success"></i> Search
-                Engine
-              </li>
-              <li class="my-1 py-1 hstack gap-2">
-                <i class="fa fa-circle text-primary"></i> Marketing
-              </li>
-            </ul>
+            <h1 class="mb-0"><?= $current_year_rejects; ?></h1>
+            <h6 class="text-muted"><?= date('Y') ?> Rejects</h6>
+            <ul class="list-icons mt-4 list-style-none" id="reject-legend"></ul>
           </div>
         </div>
-        <!-- Row -->
       </div>
     </div>
   </div>
 </div>
 
-<div class="row">
+<div class="row mt-4">
+  <!-- First All Bahagian Utama Chart -->
   <div class="col-lg-6 d-flex align-items-stretch">
     <div class="card w-100">
-      <div class="card-body pb-0">
-        <div class="d-md-flex no-block align-items-center mb-4">
-          <h4 class="card-title">Product Calculation</h4>
-          <div class="ms-auto">
-            <ul class="list-unstyled mb-0 hstack gap-3">
-              <li>
-                <h6 class="text-muted mb-0 hstack gap-2 fw-bold">
-                  <span class="text-bg-info round-10 rounded-circle"></span>2016
-                </h6>
-              </li>
-              <li>
-                <h6 class="text-muted mb-0 hstack gap-2 fw-bold">
-                  <span class="text-bg-success round-10 rounded-circle"></span>2023
-                </h6>
-              </li>
-            </ul>
-          </div>
-        </div>
+      <div class="card-body">
+        <h4 class="card-title">All Bahagian Utama by Month (<?= $current_year ?>)</h4>
+        <canvas id="allBahagianChart1" style="height: 350px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Second All Bahagian Utama Chart -->
+  <div class="col-lg-6 d-flex align-items-stretch">
+    <div class="card w-100">
+      <div class="card-body">
+        <h4 class="card-title">All Bahagian Utama by Month (<?= $current_year ?>) - Duplicate</h4>
+        <canvas id="allBahagianChart2" style="height: 350px;"></canvas>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Chart Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Auto refresh counts
+  setInterval(updateActivePatientCount, 5000);
+  setInterval(updateRejectCount, 5000);
+  setInterval(updateUnreceivedNotifikasi, 5000);
+
+  // Active Patients Area Chart with ApexCharts
+  var chartData1 = <?= $active_patients_chart ?>;
+  var series = chartData1.datasets.map(dataset => ({
+    name: dataset.label,
+    data: dataset.data
+  }));
+
+  var optionsActivePatients = {
+    chart: {
+      type: 'area',
+      height: 300,
+      toolbar: { show: false },
+      zoom: { enabled: true }
+    },
+    series: series,
+    xaxis: {
+      categories: chartData1.labels,
+      labels: { style: { colors: '#a1aab2', fontSize: '12px' } },
+      axisBorder: { show: false },
+      axisTicks: { show: false }
+    },
+    yaxis: { labels: { style: { colors: '#a1aab2', fontSize: '12px' } } },
+    grid: {
+      show: true,
+      borderColor: 'var(--bs-border-color)',
+      strokeDashArray: 4,
+      position: 'back'
+    },
+    stroke: { curve: 'smooth', width: 2 },
+    colors: ['#17a2b8', '#28a745', '#ffc107', '#dc3545'],
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: 'light',
+        type: 'vertical',
+        shadeIntensity: 0.5,
+        gradientToColors: [
+          'rgba(23, 162, 184, 0.1)',
+          'rgba(40, 167, 69, 0.1)',
+          'rgba(255, 193, 7, 0.1)',
+          'rgba(220, 53, 69, 0.1)'
+        ],
+        inverseColors: false,
+        opacityFrom: 0.4,
+        opacityTo: 0.1,
+        stops: [0, 90, 100]
+      }
+    },
+    dataLabels: { enabled: false },
+    legend: { show: true, position: 'top', labels: { colors: '#666' } },
+    tooltip: { theme: 'dark' }
+  };
+  var activePatientsChart = new ApexCharts(document.querySelector("#activePatientsChart"), optionsActivePatients);
+  activePatientsChart.render();
+
+  // Reject Analysis Donut Chart
+  var rejectData = <?= $reject_chart_data ?>;
+  var rejectColors = ['#6c757d', '#0d6efd', '#198754', '#ffc107', '#dc3545'];
+  var optionsReject = {
+    chart: { type: 'donut', height: 250 },
+    series: rejectData.datasets[0].data.map(Number),
+    labels: rejectData.labels,
+    colors: rejectColors,
+    legend: { show: false },
+    dataLabels: { enabled: true },
+    plotOptions: {
+      pie: {
+        donut: {
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: 'Current Year',
+              formatter: () => <?= $current_year_rejects ?>
+            }
+          }
+        }
+      }
+    }
+  };
+  var rejectChart = new ApexCharts(document.querySelector("#reject-analysis-chart"), optionsReject);
+  rejectChart.render();
+
+  // All Bahagian Utama combined bar charts using Chart.js
+  var allBahagianChartData = <?= $all_bahagian_chart ?? '{}' ?>;
+  if (allBahagianChartData && allBahagianChartData.labels) {
+    var colors = ['#1abc9c', '#17a2b8', '#ffc107', '#dc3545', '#28a745', '#6f42c1'];
+
+    // Dataset for chart 1
+    var datasets1 = allBahagianChartData.datasets.map((ds, i) => ({
+      ...ds,
+      label: ds.label || 'Series ' + (i + 1),
+      backgroundColor: colors[i % colors.length],
+      borderColor: colors[i % colors.length],
+      borderWidth: 1,
+    }));
+
+    // Dataset for chart 2 with shifted colors
+    var datasets2 = allBahagianChartData.datasets.map((ds, i) => ({
+      ...ds,
+      label: ds.label || 'Series ' + (i + 1),
+      backgroundColor: colors[(i + 3) % colors.length],
+      borderColor: colors[(i + 3) % colors.length],
+      borderWidth: 1,
+    }));
+
+    // Chart 1
+    var ctx1 = document.getElementById('allBahagianChart1').getContext('2d');
+    new Chart(ctx1, {
+      type: 'bar',
+      data: { labels: allBahagianChartData.labels, datasets: datasets1 },
+      options: {
+        responsive: true,
+        interaction: { mode: 'nearest', axis: 'x', intersect: false },
+        scales: {
+          x: { stacked: true, title: { display: true, text: 'Month' } },
+          y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Count' } }
+        },
+        plugins: { legend: { position: 'top' }, tooltip: { enabled: true } }
+      }
+    });
+
+    // Chart 2
+    var ctx2 = document.getElementById('allBahagianChart2').getContext('2d');
+    new Chart(ctx2, {
+      type: 'bar',
+      data: { labels: allBahagianChartData.labels, datasets: datasets2 },
+      options: {
+        responsive: true,
+        interaction: { mode: 'nearest', axis: 'x', intersect: false },
+        scales: {
+          x: { stacked: true, title: { display: true, text: 'Month' } },
+          y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Count' } }
+        },
+        plugins: { legend: { position: 'top' }, tooltip: { enabled: true } }
+      }
+    });
+  }
+});
+
+function updateActivePatientCount() {
+  fetch("<?= site_url('manage/dashboard/get_active_patient_count'); ?>")
+    .then(res => res.json())
+    .then(data => document.getElementById('active-patient-count').innerText = data.count);
+}
+
+function updateRejectCount() {
+  fetch("<?= site_url('manage/dashboard/get_total_rejects_count'); ?>")
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('total-rejects-count').innerText = data.count;
+      if (typeof rejectChart !== 'undefined') {
+        rejectChart.updateOptions({
+          plotOptions: {
+            pie: {
+              donut: {
+                labels: { total: { formatter: () => data.count } }
+              }
+            }
+          }
+        });
+      }
+    });
+}
+
+function updateUnreceivedNotifikasi() {
+  fetch("<?= site_url('manage/dashboard/get_total_unreceived_notifikasi'); ?>")
+    .then(res => res.json())
+    .then(data => document.getElementById('total-unreceived-notifikasi').innerText = data.count);
+}
+
+// Legend building (reject chart)
+var legendContainer = document.getElementById('reject-legend');
+if (legendContainer) {
+  legendContainer.style.display = 'flex';
+  legendContainer.style.gap = '10px';
+  legendContainer.style.listStyle = 'none';
+  legendContainer.style.padding = '0';
+  legendContainer.style.margin = '0';
+  legendContainer.style.maxHeight = '200px';
+  legendContainer.style.overflowY = 'auto';
+
+  var half = Math.ceil(rejectData.labels.length / 2);
+  var col1 = rejectData.labels.slice(0, half);
+  var col2 = rejectData.labels.slice(half);
+
+  function createLegendList(labels, colorOffset) {
+    var ul = document.createElement('ul');
+    ul.style.listStyle = 'none';
+    ul.style.padding = '0';
+    ul.style.margin = '0';
+    ul.style.flex = '1';
+    ul.style.minWidth = '0'; // Allow shrinking
+
+    labels.forEach((label, i) => {
+      var li = document.createElement('li');
+      li.className = "d-flex align-items-center mb-2";
+      li.style.fontSize = '12px';
+      li.style.lineHeight = '1.3';
+      li.innerHTML = `
+        <i class="fa fa-circle me-2" style="color:${rejectColors[(i + colorOffset) % rejectColors.length]}; font-size: 8px; flex-shrink: 0;"></i>
+        <span style="word-break: break-word; overflow-wrap: break-word; hyphens: auto;">${label}</span>
+      `;
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  legendContainer.appendChild(createLegendList(col1, 0));
+  legendContainer.appendChild(createLegendList(col2, half));
+}
+</script>

@@ -25,7 +25,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |
 */
 // $config['base_url'] = 'https://mynemov3-dev.umt.edu.my/jkr';
-$config['base_url'] = 'http://localhost/myprojek';
+$config['base_url'] = 'http://localhost/myprojek/';
 // $config['base_url'] = 'http://192.168.23.51/app_psh';
 /*
 |--------------------------------------------------------------------------

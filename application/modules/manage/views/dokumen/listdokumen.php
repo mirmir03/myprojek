@@ -10,11 +10,54 @@
 ?>
 
 <style>
-    /* DataTables styling improvements */
+    /* Prevent any background movement or shifting */
+    body, html {
+        overflow-x: hidden;
+        position: relative;
+    }
+    
+    .main-wrapper {
+        position: relative;
+        overflow-x: hidden;
+    }
+    
+    .card {
+        position: relative;
+        transform: none !important;
+        transition: none !important;
+        will-change: auto !important;
+    }
+    
+    .card-body {
+        position: relative;
+        transform: none !important;
+        transition: none !important;
+    }
+    
+    /* Prevent table and container movement */
+    .table-responsive {
+        position: relative;
+        transform: none !important;
+        will-change: auto !important;
+    }
+    
+    .table {
+        position: relative;
+        transform: none !important;
+        will-change: auto !important;
+    }
+    
+    /* DataTables styling improvements - prevent movement */
+    .dataTables_wrapper {
+        position: relative;
+        transform: none !important;
+    }
+    
     .dataTables_wrapper .dataTables_length select {
         padding: 0.375rem 0.75rem;
         border: 1px solid #ced4da;
         border-radius: 0.375rem;
+        transform: none !important;
     }
     
     .dataTables_wrapper .dataTables_filter input {
@@ -22,11 +65,60 @@
         border: 1px solid #ced4da;
         border-radius: 0.375rem;
         margin-left: 0.5rem;
+        transform: none !important;
     }
     
+    /* Prevent tooltip movement issues */
     .tooltip-inner {
         max-width: 300px;
         text-align: left;
+        position: relative !important;
+        transform: none !important;
+    }
+    
+    /* Stable hover effects without movement */
+    .table-hover tbody tr:hover {
+        background-color: #f5f5f5;
+        transform: none !important;
+        transition: background-color 0.15s ease-in-out;
+    }
+    
+    .btn:hover {
+        transform: none !important;
+        transition: all 0.15s ease-in-out;
+    }
+    
+    /* Prevent any scrollbar-related movement */
+    .widget-content {
+        overflow-x: visible;
+        position: relative;
+    }
+    
+    /* Fix search container positioning */
+    .product-search {
+        position: relative;
+        transform: none !important;
+    }
+    
+    /* Ensure pagination doesn't cause movement */
+    .pagination {
+        transform: none !important;
+        will-change: auto !important;
+    }
+    
+    .pagination .page-link {
+        transform: none !important;
+        transition: all 0.15s ease-in-out;
+    }
+    
+    /* Prevent accordion-like movements */
+    .accordion-item {
+        transform: none !important;
+    }
+    
+    .accordion-button {
+        transform: none !important;
+        transition: all 0.15s ease-in-out;
     }
 </style>
 
@@ -180,15 +272,31 @@
 
 <script>
 $(document).ready(function() {
-    // Initialize DataTable with pagination - NO SORTING, NO DATATABLES SEARCH
+    // Disable any CSS animations that might cause movement
+    $('*').css({
+        'transform': 'none',
+        'transition': 'none'
+    });
+    
+    // Re-enable only safe transitions after a brief delay
+    setTimeout(function() {
+        $('*').css('transition', '');
+        $('.table-hover tbody tr, .btn, .pagination .page-link').css({
+            'transition': 'all 0.15s ease-in-out',
+            'transform': 'none'
+        });
+    }, 100);
+
+    // Initialize DataTable with stable settings - NO MOVEMENT
     var table = $('#dokumen-table').DataTable({
         "pageLength": 10,
         "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]],
-        "ordering": true, // Enable sorting
-        "order": [[1, 'desc']], // Default sort by year column (index 1) descending
-        "searching": false, // Disable DataTables search
+        "ordering": true,
+        "order": [[1, 'desc']], // Default sort by year column descending
+        "searching": false, // Disable DataTables search to prevent conflicts
         "columnDefs": [
-            { "orderable": false, "targets": [-1, -2] } // Disable sorting for edit and delete columns
+            { "orderable": false, "targets": [-1, -2] }, // Disable sorting for edit and delete columns
+            { "className": "no-transform", "targets": "_all" } // Prevent transforms on all columns
         ],
         "language": {
             "lengthMenu": "Papar _MENU_ rekod",
@@ -204,10 +312,15 @@ $(document).ready(function() {
             "emptyTable": "Tiada data tersedia dalam jadual",
             "loadingRecords": "Memuatkan...",
             "processing": "Memproses..."
+        },
+        "drawCallback": function(settings) {
+            // Ensure no transforms are applied after redraw
+            $('#dokumen-table').css('transform', 'none');
+            $('#dokumen-table tbody tr').css('transform', 'none');
         }
     });
 
-    // Keep your original search functionality
+    // Keep your original search functionality with no movement
     $('#input-search').on('keyup', function() {
         const searchText = this.value.toLowerCase();
         const rows = document.querySelectorAll('#dokumen-table tbody tr');
@@ -218,12 +331,16 @@ $(document).ready(function() {
                 cell.textContent.toLowerCase().includes(searchText)
             );
             row.style.display = match ? '' : 'none';
+            // Ensure no transform is applied during search
+            row.style.transform = 'none';
         });
     });
 
-    // Delete button functionality
+    // Delete button functionality with no movement
     $(document).on('click', '.delete-btn', function(e) {
         e.preventDefault();
+        e.stopPropagation();
+        
         const dokumenId = $(this).data('id');
         const dokumenYear = $(this).data('year');
         
@@ -235,6 +352,7 @@ $(document).ready(function() {
             const form = document.createElement('form');
             form.method = 'POST';
             form.action = deleteUrl;
+            form.style.transform = 'none';
             
             // Add CSRF token if needed
             const csrfToken = document.createElement('input');
@@ -249,12 +367,40 @@ $(document).ready(function() {
         }
     });
 
-    // Initialize tooltips if Bootstrap is available
+    // Initialize tooltips with stable positioning
     if (typeof bootstrap !== 'undefined') {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+            return new bootstrap.Tooltip(tooltipTriggerEl, {
+                container: 'body',
+                trigger: 'hover',
+                placement: 'top',
+                template: '<div class="tooltip" style="transform: none !important;"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+            });
         });
     }
+    
+    // Prevent any mouse tracking or movement effects
+    $(document).off('mousemove.unwanted mouseenter.unwanted mouseleave.unwanted');
+    
+    // Override any existing transform styles that might cause movement
+    setInterval(function() {
+        $('.card, .card-body, .table-responsive, .table').each(function() {
+            if ($(this).css('transform') !== 'none') {
+                $(this).css('transform', 'none');
+            }
+        });
+    }, 1000);
 });
+
+// Prevent document-level movement effects
+document.addEventListener('mousemove', function(e) {
+    e.stopPropagation();
+}, true);
+
+document.addEventListener('mouseenter', function(e) {
+    if (e.target.closest('.card, .table-responsive, .table')) {
+        e.stopPropagation();
+    }
+}, true);
 </script>

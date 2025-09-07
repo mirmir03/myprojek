@@ -51,10 +51,24 @@ defined('BASEPATH') or exit('No direct script access allowed');
 |		my-controller/my-method	-> my_controller/my_method
 */
 // $route['default_controller'] = 'reg/parents/create';
-// $route['default_controller'] = 'reg/sys/index';
+// In your routes.php file, add these routes at the top:
+
+// Direct routes without manage prefix for external access
+$route['external_auth/login'] = 'manage/external_auth/login';
+$route['external_auth/process_login'] = 'manage/external_auth/process_login';
+$route['external_auth/logout'] = 'manage/external_auth/logout';
+$route['external_auth/debug_process_login'] = 'manage/external_auth/debug_process_login';
+$route['external_auth/test_form'] = 'manage/external_auth/test_form';
+$route['external_auth/clear_session'] = 'manage/external_auth/clear_session'; // Add this line
+
+// External auth routes - include 'manage' subdirectory (keep these as backup)
+$route['external_login'] = 'manage/external_auth/login';
+
+// Keep your existing default route unchanged
 $route['default_controller'] = 'manage/Role/system_start';
 
-// Pesakit routes
+// Your existing routes remain here
+$route['manage/Role/system_start'] = 'manage/Role/system_start';
 
 
 $route['404_override'] = '';
@@ -89,6 +103,9 @@ $route['main'] = 'reg/sys/index';
 $route['update'] = 'reg/profil/create';
 $route['pg_direct'] = 'rhm/ccc/index'; //direct
 $route['pg_return'] = 'kursusv1/bayar/view_transaction'; //indirect
+
+$route['manage/auth/login'] = 'manage/auth/login';
+$route['manage/auth/do_login'] = 'manage/auth/do_login';
 
 
 

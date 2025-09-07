@@ -149,4 +149,107 @@ class Reject_model extends CI_Model
         
         return $months;
     }
+    public function get_total_rejects($month = null, $year = null)
+{
+    // If no month/year provided, use current
+    if (empty($month)) $month = date('n');
+    if (empty($year)) $year = date('Y');
+
+    $sql = "SELECT COUNT(*) AS TOTAL
+            FROM EV_T06_REJECT_ANALYSIS
+            WHERE EXTRACT(MONTH FROM T06_TARIKH) = :month
+              AND EXTRACT(YEAR FROM T06_TARIKH) = :year";
+
+    $stmt = oci_parse($this->db->conn_id, $sql);
+    oci_bind_by_name($stmt, ":month", $month);
+    oci_bind_by_name($stmt, ":year", $year);
+    oci_execute($stmt);
+
+    $total = 0;
+    if ($row = oci_fetch_assoc($stmt)) {
+        $total = $row['TOTAL'];
+    }
+    oci_free_statement($stmt);
+
+    // If no results, try getting latest month with data
+    if ($total == 0) {
+        $sql = "SELECT COUNT(*) AS TOTAL
+                FROM EV_T06_REJECT_ANALYSIS
+                WHERE EXTRACT(YEAR FROM T06_TARIKH) = (
+                    SELECT MAX(EXTRACT(YEAR FROM T06_TARIKH)) 
+                    FROM EV_T06_REJECT_ANALYSIS
+                )";
+        
+        $stmt = oci_parse($this->db->conn_id, $sql);
+        oci_execute($stmt);
+        
+        if ($row = oci_fetch_assoc($stmt)) {
+            $total = $row['TOTAL'];
+        }
+        oci_free_statement($stmt);
+    }
+
+    return $total;
+}
+public function get_total_reject_all()
+{
+    $sql = "SELECT COUNT(*) AS TOTAL FROM EV_T06_REJECT_ANALYSIS";
+    $stmt = oci_parse($this->db->conn_id, $sql);
+    oci_execute($stmt);
+    
+    $total = 0;
+    if ($row = oci_fetch_assoc($stmt)) {
+        $total = $row['TOTAL'];
+    }
+    oci_free_statement($stmt);
+    
+    return $total;
+}
+public function get_total_rejects_by_year($year)
+{
+    $sql = "SELECT COUNT(*) as total 
+            FROM EV_T06_REJECT_ANALYSIS 
+            WHERE EXTRACT(YEAR FROM T06_TARIKH) = :year";
+    
+    $stmt = oci_parse($this->db->conn_id, $sql);
+    oci_bind_by_name($stmt, ':year', $year);
+    oci_execute($stmt);
+    
+    $result = oci_fetch_assoc($stmt);
+    oci_free_statement($stmt);
+    
+    return $result['TOTAL'] ?? 0;
+}
+
+// Add this method to your Reject_model class
+
+public function get_reject_data_with_percentage($year, $product_count)
+{
+    $sql = "SELECT 
+                T06_JENIS_REJECT as REJECT_TYPE,
+                COUNT(*) as TOTAL
+            FROM EV_T06_REJECT_ANALYSIS 
+            WHERE EXTRACT(YEAR FROM T06_TARIKH) = :year
+            GROUP BY T06_JENIS_REJECT
+            ORDER BY TOTAL DESC";
+    
+    $stmt = oci_parse($this->db->conn_id, $sql);
+    oci_bind_by_name($stmt, ':year', $year);
+    oci_execute($stmt);
+    
+    $results = [];
+    while (($row = oci_fetch_assoc($stmt)) != false) {
+        $percentage = ($row['TOTAL'] / $product_count) * 100;
+        
+        $results[] = [
+            'REJECT_TYPE' => $row['REJECT_TYPE'],
+            'TOTAL' => $row['TOTAL'],
+            'percentage' => $percentage
+        ];
+    }
+    
+    oci_free_statement($stmt);
+    
+    return $results;
+}
 }

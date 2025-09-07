@@ -12,13 +12,17 @@ class Role extends Admin_Controller
      */
     public function system_start()
     {    
-        // Check if session UID exists
-        if (!isset($_SESSION["UID"]) || empty($_SESSION["UID"])) {
-            show_error("Session expired or UID not found", 403);
-            return;
-        }
+         // Check if session UID exists - if not, show access denied
+    if (!isset($_SESSION["UID"]) || empty($_SESSION["UID"])) {
+        // Optional: Redirect to external login instead of showing error
+        // redirect('external_auth/login');
         
-        $uid = $_SESSION["UID"];
+        show_error("Access denied. Please login through the external portal.", 403);
+        return;
+    }
+    
+    // Rest of your existing code remains unchanged
+    $uid = $_SESSION["UID"];
         
         // Get user data by UID
         $userdata = $this->Role_model->get_staff_by_uid($uid);
